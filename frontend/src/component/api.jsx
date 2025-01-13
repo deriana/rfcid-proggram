@@ -348,6 +348,126 @@ export const getReportForLateAndAbsentUsers = async () => {
   }
 };
 
+export const getTotalTeachersAbsentToday = async () => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/dashboard/teachers-absent-today`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching total teachers absent today:",
+      error.response?.data || error.message
+    );
+    throw error.response ? error.response.data : error;
+  }
+};
+
+export const getTotalTeachersOnSickLeaveToday = async () => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/dashboard/teachers-sick-leave-today`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching total teachers on sick leave today:",
+      error.response?.data || error.message
+    );
+    throw error.response ? error.response.data : error;
+  }
+};
+
+export const getTeachersPresentPerMonth = async () => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/dashboard/teachers-present-per-month`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching teachers present per month:",
+      error.response?.data || error.message
+    );
+    throw error.response ? error.response.data : error;
+  }
+};
+
+export const getTotalTeachersArrivedLateToday = async () => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/dashboard/teachers-arrived-late-today`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching total teachers arrived late today:",
+      error.response?.data || error.message
+    );
+    throw error.response ? error.response.data : error;
+  }
+};
+
+export const getTotalAttendancePerTeacherLast30Days = async () => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/dashboard/attendance-per-teacher-last-30-days`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching total attendance per teacher last 30 days:",
+      error.response?.data || error.message
+    );
+    throw error.response ? error.response.data : error;
+  }
+};
+
+export const getTeachersAbsentLast30Days = async () => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/dashboard/teachers-absent-last-30-days`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching teachers absent last 30 days:",
+      error.response?.data || error.message
+    );
+    throw error.response ? error.response.data : error;
+  }
+};
+
+export const getTeachersPresentPerWeek = async () => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/dashboard/teachers-present-per-week`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching teachers present per week:",
+      error.response?.data || error.message
+    );
+    throw error.response ? error.response.data : error;
+  }
+};
+
+export const getAverageMonthlyAttendance = async () => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/dashboard/average-monthly-attendance`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching average monthly attendance:",
+      error.response?.data || error.message
+    );
+    throw error.response ? error.response.data : error;
+  }
+};
+
 export default {
   loginUser,
   getUsers,
@@ -371,4 +491,12 @@ export default {
   getLateScansTeacher,
   getScansByTeacherDateRange,
   getReportForLateAndAbsentUsers,
+  getTotalTeachersAbsentToday,
+  getTotalTeachersOnSickLeaveToday,
+  getTeachersPresentPerMonth,
+  getTotalTeachersArrivedLateToday,
+  getTotalAttendancePerTeacherLast30Days,
+  getTeachersAbsentLast30Days,
+  getTeachersPresentPerWeek,
+  getAverageMonthlyAttendance
 };

@@ -1,7 +1,5 @@
 import React from "react";
 import Preloader from "./partial/Preloader";
-import Sidebar from "./partial/Sidebar";
-import Header from "./partial/Header";
 
 const NotFound = () => {
   return (

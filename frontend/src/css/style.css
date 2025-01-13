@@ -95,12 +95,7 @@
 .flatpickr-calendar.arrowTop:after {
   @apply dark:!border-b-boxdark;
 }
-.flatpickr-calendar {
-  @apply !p-6 dark:!bg-boxdark dark:!text-bodydark dark:!shadow-8 2xsm:!w-auto;
-}
-.flatpickr-day {
-  @apply dark:!text-bodydark dark:hover:!border-meta-4 dark:hover:!bg-meta-4;
-}
+
 .flatpickr-months .flatpickr-prev-month,
 .flatpickr-months .flatpickr-next-month {
   @apply !top-7 dark:!fill-white dark:!text-white;
@@ -117,10 +112,7 @@ span.flatpickr-weekday,
 .flatpickr-months .flatpickr-month {
   @apply dark:!fill-white dark:!text-white;
 }
-.flatpickr-day.inRange {
-  @apply dark:!shadow-7;
-  box-shadow: -5px 0 0 #eff4fb, 5px 0 0 #eff4fb;
-}
+
 .flatpickr-day.inRange,
 .flatpickr-day.prevMonthDay.inRange,
 .flatpickr-day.nextMonthDay.inRange,
