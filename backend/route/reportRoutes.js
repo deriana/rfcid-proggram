@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const reportController = require('../controller/reportController');
+const verifyToken = require('../middleware/verifyToken');
 
 router.get('/laporan', reportController.getAllReport)
 router.get('/laporan/terlambat', reportController.getLateScans);

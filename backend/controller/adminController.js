@@ -67,8 +67,8 @@ const loginAdmin = async (req, res) => {
         // Membuat token JWT
         const token = jwt.sign(
             { id: admin[0].id, username: admin[0].username, email: admin[0].email },
-            process.env.SECRET_KEY,  // Menggunakan key dari environment
-            { expiresIn: '1h' }  // Token akan berlaku selama 1 jam
+            process.env.SECRET_KEY,
+            { expiresIn: '1h' }  
         );
 
         // Mengembalikan token dan data admin

@@ -10,11 +10,11 @@ const checkUserByRFID = async (rfid) => {
   return rows;
 };
 
-const insertUser = async (rfid, name, kelamin, mapel, image) => {
+const insertUser = async (rfid, name, kelamin, mapel, image, nip) => {
   const connection = await connectDB();
   const [result] = await connection.execute(
-    'INSERT INTO users (rfid, name, kelamin, mapel, image) VALUES (?, ?, ?, ?, ?)',
-    [rfid, name, kelamin, mapel, image]
+    'INSERT INTO users (rfid, name, kelamin, mapel, image, nip) VALUES (?, ?, ?, ?, ?, ?)',
+    [rfid, name, kelamin, mapel, image, nip]
   );
   await connection.end(); // Tutup koneksi setelah query selesai
   return result;

@@ -1,10 +1,10 @@
 const connectDB = require('../config/db');
 
-const insertUser = async (rfid, name, kelamin, mapel, image) => {
+const insertUser = async (rfid, name, kelamin, mapel, image, nip) => {
     const connection = await connectDB();
 
-    const query = 'INSERT INTO users (rfid, name, kelamin, mapel, image) VALUES (?, ?, ?, ?, ?)';
-    const [result] = await connection.execute(query, [rfid, name, kelamin, mapel, image]);
+    const query = 'INSERT INTO users (rfid, name, kelamin, mapel, image, nip) VALUES (?, ?, ?, ?, ?, ?)';
+    const [result] = await connection.execute(query, [rfid, name, kelamin, mapel, image, nip]);
 
     await connection.end();
     return result;
@@ -33,7 +33,7 @@ const editUser = async (id, name, kelamin, mapel, image) => {
 
     const query = `
         UPDATE users 
-        SET name = ?, kelamin = ?, mapel = ?, image = ? 
+        SET name = ?, kelamin = ?, mapel = ?, image = ?
         WHERE id = ?`;
     const [result] = await connection.execute(query, [name, kelamin, mapel, image, id]);
 

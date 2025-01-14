@@ -1,20 +1,25 @@
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
 
-const verifyToken = (req, res, next) => {
-  const token = req.header("Authorization");
+// Middleware untuk memverifikasi JWT
+const verifyToken = () => {
+    return (req, res, next) => {
+        // Ambil token dari header Authorization
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1]; // Format: "Bearer <token>"
+        
+        if (!token) {
+            return res.status(401).json({ message: 'Token tidak ditemukan, akses ditolak.' });
+        }
 
-  if (!token) {
-    return res.status(403).send("Access denied. No token provided.");
-  }
-
-  try {
-    const decoded = jwt.verify(token.split(" ")[1], process.env.SECRET_KEY);
-    req.user = decoded; 
-    next(); 
-  } catch (error) {
-    // Jika token invalid, kirimkan status error
-    return res.status(400).send("Invalid token.");
-  }
+        // Verifikasi token
+        jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+            if (err) {
+                return res.status(403).json({ message: 'Token tidak valid.' });
+            }
+            req.user = user; // Simpan user info ke dalam request
+            next(); // Lanjutkan ke middleware berikutnya atau route handler
+        });
+    };
 };
 
 module.exports = verifyToken;

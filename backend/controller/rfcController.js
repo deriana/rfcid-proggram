@@ -2,10 +2,10 @@ const rfcModel = require("../model/rfcModel"); // Mengimpor model untuk akses da
 
 // Fungsi untuk registrasi user
 const registerUser = async (req, res) => {
-  const { rfid, name, kelamin, mapel, image } = req.body;
+  const { rfid, name, kelamin, mapel, image, nip} = req.body;
 
   // Validasi input
-  if (!rfid || !name || !kelamin || !mapel || !image) {
+  if (!rfid || !name || !kelamin || !mapel || !image || !nip) {
     return res.status(400).json({ message: "RFID dan nama harus diisi" });
   }
 
@@ -17,7 +17,7 @@ const registerUser = async (req, res) => {
     }
 
     // Jika RFID belum terdaftar, insert user baru
-    await rfcModel.insertUser(rfid, name, kelamin, mapel, image);
+    await rfcModel.insertUser(rfid, name, kelamin, mapel, image, nip);
     res.json({ message: "Registrasi berhasil!" });
   } catch (err) {
     console.error("Error registering user:", err);
