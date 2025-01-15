@@ -42,6 +42,9 @@ const loginUser = async (req, res) => {
     if (rows.length > 0) {
       const userID = rows[0].id;
       const name = rows[0].name;
+      const image = rows[0].image
+      const nip = rows[0].nip
+      const timestamp = rows[0].timestamp
 
       // Mengecek status scan terakhir user
       const lastScanRows = await rfcModel.getLastScan(userID);
@@ -64,6 +67,9 @@ const loginUser = async (req, res) => {
       res.json({
         message,
         name,
+        nip,
+        image,
+        timestamp,
         rfid, // Menambahkan RFID dalam respons
         scanType, // Menambahkan jenis scan dalam respons
       });

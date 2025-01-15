@@ -1,5 +1,6 @@
 import React from "react";
 import Preloader from "./partial/Preloader";
+import CameraAccess from "./CameraAccess";
 
 const NotFound = () => {
   return (

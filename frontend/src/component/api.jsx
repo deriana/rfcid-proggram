@@ -41,11 +41,32 @@ export const getUsersById = async (id) => {
   }
 };
 
-// Fungsi untuk registrasi user
 export const registerUser = async (data) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/register`, data);
-    return response.data; // Data dari server
+    // Menyusun FormData untuk mengirimkan data termasuk image
+    const formData = new FormData();
+    
+    // Menambahkan data lain ke dalam FormData
+    formData.append('rfid', data.rfid);
+    formData.append('name', data.name);
+    formData.append('kelamin', data.kelamin);
+    formData.append('mapel', data.mapel);
+    formData.append('nip', data.nip);
+
+    // Jika ada file, tambahkan ke formData
+    if (data.image) {
+      formData.append('image', data.image); // 'image' adalah nama input file
+    }
+    
+    // Mengirim data dengan method POST
+    const response = await axios.post(`${API_BASE_URL}/user/register`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data', // Penting agar bisa upload file
+      },
+    });
+
+    // Mengembalikan data dari server
+    return response.data;
   } catch (error) {
     console.error(
       "Error during registration:",
@@ -55,16 +76,33 @@ export const registerUser = async (data) => {
   }
 };
 
+
 // Fungsi untuk edit user
-export const editUser = async (id, updatedUser) => {
+export const editUser = async (id, updatedUser, imageFile) => {
+  const formData = new FormData();
+
+  formData.append("name", updatedUser.name);
+  formData.append("kelamin", updatedUser.kelamin);
+  formData.append("mapel", updatedUser.mapel);
+
+  if (imageFile) {
+    formData.append("image", imageFile); // Add image file only if it exists
+  }
+
   try {
-    const response = await axios.put(`${API_BASE_URL}/user/${id}`, updatedUser);
-    return response.data;
+    const response = await axios.put(`${API_BASE_URL}/user/${id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return response.data; // Return response data when the user is successfully updated
   } catch (error) {
-    console.error("Error editing user:", error.response.data || error.message);
-    throw error.response ? error.response.data : error;
+    console.error("Error editing user:", error.response?.data || error.message);
+    throw error.response ? error.response.data : error; // Return detailed error if it occurs
   }
 };
+
 
 // Fungsi untuk menghapus user
 export const deleteUser = async (id) => {
@@ -84,7 +122,16 @@ export const loginAdmin = async (usernameOrEmail, password) => {
       usernameOrEmail,
       password,
     });
-    return response.data; // Data dari server
+
+    // Simpan token ke localStorage jika login berhasil
+    const { token } = response.data; // Pastikan response API memberikan token
+    if (token) {
+      localStorage.setItem("authToken", token); // Simpan token di localStorage
+    } else {
+      console.warn("Token tidak ditemukan dalam respons.");
+    }
+
+    return response.data; // Kembalikan data lainnya jika ada
   } catch (error) {
     if (error.response && error.response.status === 401) {
       localStorage.removeItem("authToken");

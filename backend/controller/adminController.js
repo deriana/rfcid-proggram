@@ -68,7 +68,7 @@ const loginAdmin = async (req, res) => {
         const token = jwt.sign(
             { id: admin[0].id, username: admin[0].username, email: admin[0].email },
             process.env.SECRET_KEY,
-            { expiresIn: '1h' }  
+            { expiresIn: '24h' }  
         );
 
         // Mengembalikan token dan data admin

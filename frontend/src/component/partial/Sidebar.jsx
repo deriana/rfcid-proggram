@@ -82,6 +82,17 @@ const Sidebar = () => {
                   Report
                 </a>
               </li>
+              <li>
+                <a
+                  href="/rfcid-scans"
+                  onClick={() => handleMenuItemClick("Rfcid")}
+                  className={`group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark ${
+                    selected === "Report" && "bg-graydark"
+                  }`}
+                >
+                  Rfcid
+                </a>
+              </li>
             </ul>
           </div>
         </nav>

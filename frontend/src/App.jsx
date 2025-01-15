@@ -14,17 +14,27 @@ import LoginRfcid from "./component/LoginRfcid";
 import EditUsers from "./component/EditUsers";
 import EditAdmin from "./component/EditAdmin";
 import Logout from "./component/Logout";
+import RegisterUsers from "./component/RegisterUsers"
 
 const App = () => {
   return (
     <Router>
       <Routes>
-
+        {/* Rute terbuka */}
+        <Route path="/login" element={<Login />} />
         <Route path="/logout" element={<Logout />} />
-
+        <Route path="/rfcid-scans" element={<LoginRfcid />} />
         <Route path="*" element={<NotFound />} />
-        
-        <Route path="/" element={<Dashboard />} />
+
+        {/* Rute yang dilindungi */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/admin"
           element={
@@ -33,12 +43,19 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-        <Route path="/login" element={<Login />} />
         <Route
           path="/users"
           element={
             <ProtectedRoute>
               <Users />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <ProtectedRoute>
+              <RegisterUsers />
             </ProtectedRoute>
           }
         />
@@ -50,7 +67,6 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-        <Route path="/rfcid-scans" element={<LoginRfcid />} />
         <Route
           path="/users/edit/:id"
           element={

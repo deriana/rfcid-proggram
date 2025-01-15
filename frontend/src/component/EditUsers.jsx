@@ -11,7 +11,8 @@ const EditUsers = () => {
   const [name, setName] = useState("");
   const [kelamin, setKelamin] = useState("");
   const [mapel, setMapel] = useState("");
-  const [image, setImage] = useState("");
+  const [image, setImage] = useState(""); // Used for image URL (If provided manually)
+  const [imageFile, setImageFile] = useState(null); // File upload state
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -48,12 +49,22 @@ const EditUsers = () => {
 
     setLoading(true);
     try {
-      await editUser(id, updatedUser);
+      // Call the editUser function with FormData, including image file if exists
+      await editUser(id, updatedUser, imageFile);
       navigate("/users"); // Navigate back to users list after editing
     } catch (error) {
       setError("Failed to update user data.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handle file selection
+  const handleImageChange = (e) => {
+    const file = e.target.files[0]; // Get the first selected file
+    if (file) {
+      setImageFile(file); // Store the selected image file
+      setImage(URL.createObjectURL(file)); // Set image preview in the input
     }
   };
 
@@ -125,19 +136,24 @@ const EditUsers = () => {
                         />
                       </div>
 
-                      {/* Image URL Input */}
+                      {/* Image File Input */}
                       <div className="mb-4">
                         <label htmlFor="image" className="block text-sm font-medium text-gray-600 mb-2">
-                          Image URL
+                          Upload Image
                         </label>
                         <input
                           id="image"
-                          type="text"
-                          placeholder="Enter Image URL"
-                          value={image}
-                          onChange={(e) => setImage(e.target.value)}
+                          type="file"
+                          onChange={handleImageChange}
                           className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
+                        {image && (
+                          <img
+                            src={image}
+                            alt="User Image"
+                            className="mt-2 max-w-full h-40 object-cover rounded-md"
+                          />
+                        )}
                       </div>
 
                       {/* Update Button */}
