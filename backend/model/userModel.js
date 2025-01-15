@@ -10,6 +10,16 @@ const insertUser = async (rfid, name, kelamin, mapel, image, nip) => {
     return result;
 };
 
+const insertUserXlsx = async (rfid, nip, name, kelamin, mapel) => {
+    const connection = await connectDB();
+
+    const query = 'INSERT INTO users (rfid,nip, name, kelamin, mapel) VALUES(?,?,?,?,?)';
+    const [result] = await connection.execute(query, [rfid, nip, name, kelamin, mapel]);
+
+    await connection.end();
+    return result;
+}
+
 const getAllUsers = async () => {
     const connection = await connectDB();
     const query = 'SELECT * FROM users';
@@ -51,10 +61,24 @@ const deleteUser = async (id) => {
     return result;
 };
 
+const checkUserNotAbsent = async () => {
+    const connection = await connectDB();
+    const query = `SELECT users.*, scans.timestamp
+                    FROM users
+                    LEFT JOIN scans ON users.id = scans.userID AND DATE(scans.timestamp) = CURDATE()
+                    WHERE scans.userID IS NULL;
+                    `
+    const [result] = await connection.execute(query);
+    await connection.end();
+    return result;
+}
+
 module.exports = {
     insertUser,
     getAllUsers,
     getUserByID,
     editUser,
     deleteUser,
+    insertUserXlsx,
+    checkUserNotAbsent
 };

@@ -18,6 +18,7 @@ const getAllReport = async () => {
         users u ON s.userID = u.id
     WHERE 
         s.timestamp BETWEEN DATE(NOW()) AND NOW()
+        AND DAYOFWEEK(s.timestamp) NOT IN (1, 7)  -- Exclude Saturday and Sunday
     ORDER BY 
         s.timestamp DESC;
   `;
@@ -45,6 +46,7 @@ const getScansByTeacher = async (id) => {
         users u ON s.userID = u.id
     WHERE 
         u.id = ?
+        AND DAYOFWEEK(s.timestamp) NOT IN (1, 7)  -- Exclude Saturday and Sunday
     ORDER BY 
         s.timestamp DESC;
   `;
@@ -69,6 +71,7 @@ const getReportByType = async (option) => {
         users u ON s.userID = u.id
     WHERE 
         s.type = ?
+        AND DAYOFWEEK(s.timestamp) NOT IN (1, 7)  -- Exclude Saturday and Sunday
     ORDER BY 
         s.timestamp, s.type;
   `;
@@ -96,7 +99,7 @@ const getScansByDateRange = async (startDate, endDate) => {
         users u ON s.userID = u.id
     WHERE 
         DATE(s.timestamp) BETWEEN ? AND ? 
-        AND DAYOFWEEK(s.timestamp) NOT IN (1, 7)
+        AND DAYOFWEEK(s.timestamp) NOT IN (1, 7)  -- Exclude Saturday and Sunday
     ORDER BY 
         s.timestamp DESC;
   `;
@@ -129,7 +132,7 @@ const getReportByDateRangeAndTimeCondition = async (
         users u ON s.userID = u.id
     WHERE 
         DATE(s.timestamp) BETWEEN ? AND ? 
-        AND DAYOFWEEK(s.timestamp) NOT IN (1, 7)
+        AND DAYOFWEEK(s.timestamp) NOT IN (1, 7)  -- Exclude Saturday and Sunday
         AND s.type = 'masuk'
         AND TIME(s.timestamp) ${timeCondition} ?
     ORDER BY 
@@ -160,6 +163,7 @@ const getLateScans = async () => {
     WHERE 
         s.type = 'masuk'
         AND TIME(s.timestamp) > '08:00:00'
+        AND DAYOFWEEK(s.timestamp) NOT IN (1, 7)  -- Exclude Saturday and Sunday
     ORDER BY 
         s.timestamp;
   `;
@@ -173,21 +177,22 @@ const getLateScansTeacher = async (id) => {
   const connection = await connectDB();
 
   const query = `
-        SELECT 
-            u.name AS Nama,
-            u.mapel AS 'Mata Pelajaran',
-            s.timestamp AS 'Waktu Masuk'
-        FROM 
-            scans s
-        JOIN 
-            users u ON s.userID = u.id
-        WHERE 
-            s.type = 'masuk'
-            AND TIME(s.timestamp) > '08:00:00'
-            AND u.id = ?
-        ORDER BY 
-            s.timestamp;
-    `;
+    SELECT 
+        u.name AS Nama,
+        u.mapel AS 'Mata Pelajaran',
+        s.timestamp AS 'Waktu Masuk'
+    FROM 
+        scans s
+    JOIN 
+        users u ON s.userID = u.id
+    WHERE 
+        s.type = 'masuk'
+        AND TIME(s.timestamp) > '08:00:00'
+        AND u.id = ?
+        AND DAYOFWEEK(s.timestamp) NOT IN (1, 7)  -- Exclude Saturday and Sunday
+    ORDER BY 
+        s.timestamp;
+  `;
 
   const [rows] = await connection.execute(query, [id]);
   await connection.end();
@@ -198,21 +203,22 @@ const getReportByTeacherDateRange = async (id, startDate, endDate) => {
   const connection = await connectDB();
 
   const query = `
-        SELECT 
-            u.name AS Nama,
-            u.mapel AS 'Mata Pelajaran',
-            s.timestamp AS 'Waktu Absensi',
-            s.type AS 'Jenis Absensi'
-        FROM 
-            scans s
-        JOIN 
-            users u ON s.userID = u.id
-        WHERE 
-            u.id = ?
-            AND DATE(s.timestamp) BETWEEN ? AND ?
-        ORDER BY 
-            s.timestamp DESC;
-    `;
+    SELECT 
+        u.name AS Nama,
+        u.mapel AS 'Mata Pelajaran',
+        s.timestamp AS 'Waktu Absensi',
+        s.type AS 'Jenis Absensi'
+    FROM 
+        scans s
+    JOIN 
+        users u ON s.userID = u.id
+    WHERE 
+        u.id = ?
+        AND DATE(s.timestamp) BETWEEN ? AND ?
+        AND DAYOFWEEK(s.timestamp) NOT IN (1, 7)  -- Exclude Saturday and Sunday
+    ORDER BY 
+        s.timestamp DESC;
+  `;
 
   const [rows] = await connection.execute(query, [id, startDate, endDate]);
   await connection.end();
@@ -238,6 +244,7 @@ WITH LateCounts AS (
     WHERE 
         s.type = 'masuk' 
         AND TIME(s.timestamp) > '08:00:00' 
+        AND DAYOFWEEK(s.timestamp) NOT IN (1, 7)  -- Exclude Saturday and Sunday
     GROUP BY 
         u.id, u.name, u.rfid, u.kelamin, u.mapel
 ),
@@ -253,6 +260,8 @@ AbsentCounts AS (
         users u
     LEFT JOIN 
         scans s ON u.id = s.userID
+    WHERE 
+        DAYOFWEEK(s.timestamp) NOT IN (1, 7)  -- Exclude Saturday and Sunday
     GROUP BY 
         u.id, u.name, u.rfid, u.kelamin, u.mapel
 )
@@ -273,7 +282,7 @@ LEFT JOIN
 ORDER BY 
     JumlahTerlambat DESC, 
     JumlahTidakMasuk DESC;
-    `;
+  `;
 
   const [rows] = await connection.execute(query);
   await connection.end();

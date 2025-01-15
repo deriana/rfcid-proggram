@@ -93,6 +93,14 @@ const checkEntryForToday = async (userID, type) => {
   await connection.end();
   return rows;
 };
+const checkScanForToday = async(userID) => {
+  const connection = await connectDB();
+  const [rows] = await connection.execute('SELECT * FROM scans WHERE userID ? AND type = masuk AND timestamp > NOW() - INTERVAL 1 DAY',
+  [userID]
+  );
+  await connection.end();
+  return rows;
+}
 
 // Ekspor semua fungsi
 module.exports = {
@@ -104,5 +112,6 @@ module.exports = {
   getAllUsers,
   UsersGetHurt,
   UsersGetPermission,
-  checkEntryForToday
+  checkEntryForToday,
+  checkScanForToday
 };
