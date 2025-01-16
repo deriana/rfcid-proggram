@@ -1,12 +1,27 @@
 import React from "react";
+import Swal from "sweetalert2"; // Import SweetAlert2
 
 const PrintButton = () => {
-  const handlePrint = () => {
+  const handlePrint = async () => {
     const printContent = document.getElementById("table-to-print");
-    
+
     if (!printContent) {
       alert("Tabel tidak ditemukan!");
       return;
+    }
+
+    // Menampilkan konfirmasi dengan SweetAlert2 sebelum melanjutkan pencetakan
+    const result = await Swal.fire({
+      title: "Konfirmasi Pencetakan",
+      text: "Apakah Anda yakin ingin mencetak tabel ini?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Ya, Cetak!",
+      cancelButtonText: "Batal",
+    });
+
+    if (!result.isConfirmed) {
+      return; // Hentikan proses pencetakan jika dibatalkan
     }
 
     const printWindow = window.open("", "_self"); // Menggunakan jendela yang ada saat ini

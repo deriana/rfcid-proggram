@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom"; // Untuk navigasi
 import Preloader from "./partial/Preloader";
 import Sidebar from "./partial/Sidebar";
 import Header from "./partial/Header";
+import Swal from "sweetalert2"; // Import SweetAlert
 
 const RegisterUserPage = () => {
   const navigate = useNavigate(); // Hook untuk melakukan navigasi ke halaman lain
@@ -39,32 +40,63 @@ const RegisterUserPage = () => {
       return;
     }
 
-    setLoading(true); // Mulai loading
+    // SweetAlert konfirmasi
+    const result = await Swal.fire({
+      title: "Konfirmasi Pendaftaran",
+      text: "Anda yakin ingin mendaftar dengan data ini?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya, Daftar",
+      cancelButtonText: "Batal",
+      customClass: {
+        icon: "text-yellow-500",
+      },
+    });
 
-    try {
-      // Mendaftar user menggunakan API service
-      const response = await registerUser(formData);
+    // Jika pengguna mengonfirmasi
+    if (result.isConfirmed) {
+      setLoading(true); // Mulai loading
 
-      // Jika berhasil, arahkan ke halaman "/users"
-      navigate("/users");
-    } catch (error) {
-      // Log the full error object to see its structure
-      console.log(error);
+      try {
+        // Mendaftar user menggunakan API service
+        const response = await registerUser(formData);
 
-      // Alternatively, log a more readable version, like the message from the response
-      console.log(
-        error?.response?.data?.message || "Terjadi kesalahan, coba lagi."
-      );
+        // SweetAlert Sukses
+        Swal.fire({
+          title: "Berhasil!",
+          text: "Pendaftaran pengguna berhasil.",
+          icon: "success",
+          confirmButtonText: "OK",
+          customClass: {
+            icon: "text-green-500",
+          },
+        });
 
-      // You may also want to log other details such as the status or stack trace
-      console.log(error?.response?.status);
-      console.log(error?.stack);
+        // Jika berhasil, arahkan ke halaman "/users"
+        navigate("/users");
+      } catch (error) {
+        // Log the full error object to see its structure
+        console.log(error);
 
-      setFormError(
-        error?.response?.data?.message || "Terjadi kesalahan, coba lagi."
-      );
-    } finally {
-      setLoading(false); // Matikan loading
+        // SweetAlert Error
+        Swal.fire({
+          title: "Gagal!",
+          text:
+            error?.response?.data?.message ||
+            "Terjadi kesalahan, coba lagi.",
+          icon: "error",
+          confirmButtonText: "OK",
+          customClass: {
+            icon: "text-red-500",
+          },
+        });
+
+        setFormError(
+          error?.response?.data?.message || "Terjadi kesalahan, coba lagi."
+        );
+      } finally {
+        setLoading(false); // Matikan loading
+      }
     }
   };
 

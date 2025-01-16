@@ -4,15 +4,14 @@ import Sidebar from "./partial/Sidebar";
 import Header from "./partial/Header";
 import { getUsers, deleteUser } from "./api";
 import { useNavigate } from "react-router-dom";
-import ImportExcel from "./ImportExcel"
+import Swal from "sweetalert2"; // Import SweetAlert
+import ImportExcel from "./ImportExcel";
 
 function Users() {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
-  const [deleteId, setDeleteId] = useState(null);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -27,16 +26,55 @@ function Users() {
     fetchUsers();
   }, [navigate]);
 
+  // Handle delete confirmation with SweetAlert
   const handleDelete = async (id) => {
-    try {
-      await deleteUser(id); // Panggil fungsi delete
-      setUsers(users.filter((user) => user.id !== id)); // Update state users
-      setIsDeleteModalOpen(false); // Tutup modal
-    } catch (error) {
-      setError("Gagal menghapus user");
-    }
+    // Menampilkan SweetAlert konfirmasi penghapusan
+    Swal.fire({
+      title: "Konfirmasi Penghapusan",
+      text: "Anda yakin ingin menghapus user ini? Proses ini tidak dapat dibatalkan.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Hapus",
+      cancelButtonText: "Batal",
+      customClass: {
+        icon: "text-yellow-500",
+      },
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await deleteUser(id); // Panggil fungsi delete
+
+          // Menampilkan SweetAlert jika berhasil
+          Swal.fire({
+            title: "Berhasil dihapus!",
+            text: "User telah berhasil dihapus.",
+            icon: "success",
+            confirmButtonText: "OK",
+            customClass: {
+              icon: "text-green-500",
+            },
+          });
+
+          setUsers(users.filter((user) => user.id !== id)); // Update state users setelah dihapus
+        } catch (error) {
+          setError("Gagal menghapus user");
+
+          // Menampilkan SweetAlert jika gagal
+          Swal.fire({
+            title: "Gagal!",
+            text: "Terjadi kesalahan saat menghapus user.",
+            icon: "error",
+            confirmButtonText: "OK",
+            customClass: {
+              icon: "text-red-500",
+            },
+          });
+        }
+      }
+    });
   };
 
+  // Handle search input change
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
   };
@@ -101,11 +139,7 @@ function Users() {
                         {/* Kolom Gambar */}
                         <td className="px-6 py-3">
                           <img
-                            src={
-                              user.image
-                                ? `/images/${user.image}`
-                                : "/images/default.jpeg"
-                            }
+                            src={user.image ? `/images/${user.image}` : "/images/default.jpeg"}
                             alt={user.name}
                             className="w-16 h-16 rounded-full object-cover" // Menyesuaikan ukuran gambar
                           />
@@ -119,10 +153,7 @@ function Users() {
                             Edit
                           </button>
                           <button
-                            onClick={() => {
-                              setDeleteId(user.id);
-                              setIsDeleteModalOpen(true);
-                            }}
+                            onClick={() => handleDelete(user.id)} // langsung panggil handleDelete
                             className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md"
                           >
                             Delete
@@ -133,41 +164,6 @@ function Users() {
                   </tbody>
                 </table>
               </div>
-
-              {/* Delete Confirmation Modal */}
-              {isDeleteModalOpen && (
-                <div
-                  className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50"
-                  onClick={() => setIsDeleteModalOpen(false)}
-                >
-                  <div
-                    className="bg-white p-6 rounded shadow-md max-w-lg w-full"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <h2 className="text-xl font-semibold mb-4 text-gray-700">
-                      Konfirmasi Penghapusan
-                    </h2>
-                    <p className="mb-4 text-gray-600">
-                      Anda yakin ingin menghapus user ini? Proses ini tidak
-                      dapat dibatalkan.
-                    </p>
-                    <div className="flex justify-end space-x-4">
-                      <button
-                        onClick={() => setIsDeleteModalOpen(false)}
-                        className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-md"
-                      >
-                        Batal
-                      </button>
-                      <button
-                        onClick={() => handleDelete(deleteId)}
-                        className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md"
-                      >
-                        Hapus
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           </main>
         </div>

@@ -4,6 +4,7 @@ import Sidebar from "./partial/Sidebar";
 import Header from "./partial/Header";
 import { getUsersById, editUser } from "./api";
 import { useParams, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2"; // Import SweetAlert
 
 const EditUsers = () => {
   const { id } = useParams();
@@ -42,20 +43,58 @@ const EditUsers = () => {
     fetchUsers();
   }, [id]);
 
-  // Handle form submission
+  // Handle form submission with SweetAlert
   const handleSubmit = async (e) => {
     e.preventDefault();
     const updatedUser = { name, kelamin, mapel, image };
 
-    setLoading(true);
-    try {
-      // Call the editUser function with FormData, including image file if exists
-      await editUser(id, updatedUser, imageFile);
-      navigate("/users"); // Navigate back to users list after editing
-    } catch (error) {
-      setError("Failed to update user data.");
-    } finally {
-      setLoading(false);
+    // SweetAlert: Ask for confirmation before submitting
+    const result = await Swal.fire({
+      title: "Konfirmasi Pengubahan",
+      text: "Anda yakin ingin mengubah data user ini?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya, Ubah",
+      cancelButtonText: "Batal",
+      customClass: {
+        icon: "text-yellow-500",
+      },
+    });
+
+    if (result.isConfirmed) {
+      setLoading(true);
+      try {
+        // Call the editUser function with FormData, including image file if exists
+        await editUser(id, updatedUser, imageFile);
+
+        // SweetAlert Success message after update
+        Swal.fire({
+          title: "Berhasil!",
+          text: "User telah berhasil diperbarui.",
+          icon: "success",
+          confirmButtonText: "OK",
+          customClass: {
+            icon: "text-green-500",
+          },
+        });
+
+        navigate("/users"); // Navigate back to users list after editing
+      } catch (error) {
+        setError("Failed to update user data.");
+
+        // SweetAlert Error message
+        Swal.fire({
+          title: "Gagal!",
+          text: "Terjadi kesalahan saat memperbarui data user.",
+          icon: "error",
+          confirmButtonText: "OK",
+          customClass: {
+            icon: "text-red-500",
+          },
+        });
+      } finally {
+        setLoading(false);
+      }
     }
   };
 

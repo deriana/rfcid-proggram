@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerAdmin } from "./api";
+import Swal from "sweetalert2"; // Import SweetAlert
 
 const RegisterAdmin = () => {
   const [formData, setFormData] = useState({
@@ -39,9 +40,30 @@ const RegisterAdmin = () => {
     setLoading(true);
     try {
       await registerAdmin(formData);
-      navigate("/admin");
+      // Show success alert when registration is successful
+      Swal.fire({
+        title: "Registrasi Berhasil!",
+        text: "Admin baru telah berhasil didaftarkan.",
+        icon: "success",
+        confirmButtonText: "OK",
+        customClass: {
+          icon: "text-green-500",
+        },
+      }).then(() => {
+        navigate("/admin"); // Redirect to admin dashboard after success
+      });
     } catch (err) {
       setFormError(err.message || "Terjadi kesalahan dalam registrasi.");
+      // Show error alert when registration fails
+      Swal.fire({
+        title: "Gagal!",
+        text: "Terjadi kesalahan saat registrasi admin.",
+        icon: "error",
+        confirmButtonText: "OK",
+        customClass: {
+          icon: "text-red-500",
+        },
+      });
     } finally {
       setLoading(false);
     }

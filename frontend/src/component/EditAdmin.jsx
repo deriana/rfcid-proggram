@@ -4,6 +4,7 @@ import Sidebar from "./partial/Sidebar";
 import Header from "./partial/Header";
 import { useParams, useNavigate } from "react-router-dom";
 import { getAdminById, editAdmin } from "./api";
+import Swal from "sweetalert2"; // Import SweetAlert
 
 const EditAdmin = () => {
   const { id } = useParams(); // Ambil ID admin dari URL
@@ -51,15 +52,38 @@ const EditAdmin = () => {
       username,
       email,
       role,
-      ...(password && { password }),
-    }; // Sertakan password hanya jika diisi
+      ...(password && { password }), // Sertakan password hanya jika diisi
+    };
 
     setLoading(true);
     try {
       await editAdmin(id, updatedAdmin); // Panggil API untuk mengedit admin
-      navigate("/admin"); // Kembali ke dashboard admin
+      
+      // Menampilkan SweetAlert setelah sukses
+      Swal.fire({
+        title: "Update Berhasil!",
+        text: "Admin telah berhasil diperbarui.",
+        icon: "success",
+        confirmButtonText: "OK",
+        customClass: {
+          icon: "text-green-500",
+        },
+      }).then(() => {
+        navigate("/admin"); // Kembali ke dashboard admin setelah sukses
+      });
     } catch (error) {
       setError("Failed to update admin.");
+
+      // Menampilkan SweetAlert ketika gagal update
+      Swal.fire({
+        title: "Gagal!",
+        text: "Terjadi kesalahan saat memperbarui admin.",
+        icon: "error",
+        confirmButtonText: "OK",
+        customClass: {
+          icon: "text-red-500",
+        },
+      });
     } finally {
       setLoading(false);
     }

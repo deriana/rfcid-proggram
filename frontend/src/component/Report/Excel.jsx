@@ -1,7 +1,22 @@
 import * as XLSX from "xlsx";
+import Swal from "sweetalert2"; // Import SweetAlert2
 
 const ExportButton = ({ data, columns, tableName }) => {
-  const handleExport = () => {
+  const handleExport = async () => {
+    // Menampilkan SweetAlert untuk konfirmasi ekspor
+    const result = await Swal.fire({
+      title: "Konfirmasi Ekspor",
+      text: "Apakah Anda yakin ingin mengekspor data ke file Excel?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Ya, Ekspor!",
+      cancelButtonText: "Batal",
+    });
+
+    if (!result.isConfirmed) {
+      return; // Hentikan ekspor jika dibatalkan
+    }
+
     // Menyiapkan data yang akan diekspor dengan kolom dinamis
     const formattedData = data.map((item) => {
       let formattedItem = {};
@@ -20,6 +35,13 @@ const ExportButton = ({ data, columns, tableName }) => {
 
     // Mengekspor ke file Excel
     XLSX.writeFile(wb, "Laporan_Data.xlsx");
+
+    // Menampilkan SweetAlert setelah sukses ekspor
+    Swal.fire({
+      title: "Berhasil!",
+      text: "Data berhasil diekspor ke Excel.",
+      icon: "success",
+    });
   };
 
   return (

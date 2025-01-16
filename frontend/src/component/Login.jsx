@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Preloader from "./partial/Preloader";
 import { loginAdmin } from "./api";
+import Swal from "sweetalert2"; // Impor SweetAlert2
 
 const Login = () => {
   const [usernameOrEmail, setUsernameOrEmail] = useState(""); // Input untuk username atau email
@@ -15,7 +16,7 @@ const Login = () => {
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (token) {
-      navigate("/admin"); // Arahkan ke halaman admin
+      navigate("/"); // Arahkan ke halaman admin
     }
   }, [navigate]);
 
@@ -33,13 +34,29 @@ const Login = () => {
       setLoading(true);
       const response = await loginAdmin(usernameOrEmail, password);
 
-      setMessage({ type: "success", text: "Login berhasil!" });
+      // Tampilkan SweetAlert jika login sukses
+      Swal.fire({
+        title: "Login Berhasil!",
+        text: "Anda berhasil login, sedang mengalihkan ke dashboard...",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+
       localStorage.setItem("authToken", response.token);
       localStorage.setItem("adminData", JSON.stringify(response.admin));
 
-      setTimeout(() => navigate("/admin"), 1000);
+      setTimeout(() => navigate("/"), 1000);
     } catch (error) {
       const errorMsg = error.response?.data?.message || "Terjadi kesalahan saat login.";
+      
+      // Tampilkan SweetAlert jika login gagal
+      Swal.fire({
+        title: "Login Gagal!",
+        text: errorMsg,
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      
       setMessage({ type: "error", text: errorMsg });
     } finally {
       setLoading(false);

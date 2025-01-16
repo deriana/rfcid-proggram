@@ -8,6 +8,7 @@ import {
   getUsersPermission,
   getUsersAlfa,
 } from "./api";
+import Swal from "sweetalert2"; // Import SweetAlert2
 
 const UsersAbsent = () => {
   const [users, setUsers] = useState([]);
@@ -15,9 +16,6 @@ const UsersAbsent = () => {
   const [selectedDate, setSelectedDate] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const [absenceType, setAbsenceType] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isConfirmingMultiSelect, setIsConfirmingMultiSelect] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -27,7 +25,6 @@ const UsersAbsent = () => {
     try {
       const dateToCheck =
         selectedDate || new Date().toISOString().split("T")[0];
-      console.log("Fetching users with date:", dateToCheck);
       const response = await checkUserAbsent(dateToCheck);
 
       if (response.status === "success") {
@@ -37,11 +34,33 @@ const UsersAbsent = () => {
       }
     } catch (err) {
       setError(err?.message || "Terjadi kesalahan saat memuat data pengguna.");
-      console.error("Fetch error:", err);
     }
   };
 
-  const handleAbsenceSingle = async (userID, absenceType) => {
+  const handleAbsenceSingle = async (userID) => {
+    const result = await Swal.fire({
+      title: "Pilih Jenis Absensi",
+      text: "Pilih jenis absensi yang ingin diterapkan",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Terapkan",
+      cancelButtonText: "Batal",
+      input: "radio",
+      inputOptions: {
+        sakit: "Sakit",
+        ijin: "Ijin",
+        alfa: "Alfa",
+      },
+      inputValidator: (value) => {
+        if (!value) {
+          return "Anda harus memilih jenis absensi";
+        }
+      },
+    });
+
+    if (!result.isConfirmed) return;
+
+    const absenceType = result.value;
     const confirmationMessage =
       absenceType === "sakit"
         ? "Apakah Anda yakin ingin menginput absen sebagai sakit?"
@@ -49,9 +68,16 @@ const UsersAbsent = () => {
         ? "Apakah Anda yakin ingin menginput absen sebagai izin?"
         : "Apakah Anda yakin ingin menginput absen sebagai alfa?";
 
-    const confirmation = window.confirm(confirmationMessage);
+    const confirmAbsence = await Swal.fire({
+      title: "Konfirmasi",
+      text: confirmationMessage,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya",
+      cancelButtonText: "Batal",
+    });
 
-    if (!confirmation) return;
+    if (!confirmAbsence.isConfirmed) return;
 
     try {
       const today = new Date().toISOString().split("T")[0];
@@ -65,24 +91,72 @@ const UsersAbsent = () => {
       } else if (absenceType === "alfa") {
         response = await getUsersAlfa({ userID, date: effectiveDate });
       }
-      alert(response?.message || "Absensi berhasil dicatat.");
+
+      Swal.fire({
+        title: "Berhasil!",
+        text: response?.message || "Absensi berhasil dicatat.",
+        icon: "success",
+      });
       setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userID));
     } catch (error) {
       console.error(error);
-      alert("Terjadi kesalahan saat mencatat absensi.");
+      Swal.fire({
+        title: "Gagal!",
+        text: "Terjadi kesalahan saat mencatat absensi.",
+        icon: "error",
+      });
     }
   };
 
   const handleAbsenceBatch = async () => {
-    if (selectedUsers.length === 0 || !absenceType) {
-      alert("Pilih pengguna dan jenis absensi.");
+    if (selectedUsers.length === 0) {
+      Swal.fire({
+        title: "Peringatan!",
+        text: "Pilih pengguna untuk batch absensi.",
+        icon: "warning",
+      });
       return;
     }
 
-    const confirmation = window.confirm(
-      "Apakah Anda yakin ingin mengupdate absensi untuk semua pengguna yang dipilih?"
-    );
-    if (!confirmation) return;
+    const result = await Swal.fire({
+      title: "Pilih Jenis Absensi untuk Batch",
+      text: "Pilih jenis absensi yang akan diterapkan ke pengguna terpilih",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Terapkan",
+      cancelButtonText: "Batal",
+      input: "radio",
+      inputOptions: {
+        sakit: "Sakit",
+        ijin: "Ijin",
+        alfa: "Alfa",
+      },
+      inputValidator: (value) => {
+        if (!value) {
+          return "Anda harus memilih jenis absensi";
+        }
+      },
+    });
+
+    if (!result.isConfirmed) return;
+
+    const absenceType = result.value;
+
+    const confirmAbsence = await Swal.fire({
+      title: "Konfirmasi",
+      text:
+        absenceType === "sakit"
+          ? "Apakah Anda yakin ingin menginput absensi sakit untuk pengguna yang dipilih?"
+          : absenceType === "ijin"
+          ? "Apakah Anda yakin ingin menginput absensi izin untuk pengguna yang dipilih?"
+          : "Apakah Anda yakin ingin menginput absensi alfa untuk pengguna yang dipilih?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya",
+      cancelButtonText: "Batal",
+    });
+
+    if (!confirmAbsence.isConfirmed) return;
 
     try {
       const date = selectedDate || new Date().toISOString().split("T")[0];
@@ -93,25 +167,32 @@ const UsersAbsent = () => {
       });
 
       await Promise.all(promises);
-      alert("Absensi berhasil dicatat!");
+      Swal.fire({
+        title: "Berhasil!",
+        text: "Absensi berhasil dicatat untuk semua pengguna.",
+        icon: "success",
+      });
       setUsers((prevUsers) =>
         prevUsers.filter((user) => !selectedUsers.includes(user.id))
       );
       setSelectedUsers([]);
     } catch (error) {
       console.error("Batch absence error:", error);
-      alert("Gagal mencatat absensi batch.");
+      Swal.fire({
+        title: "Gagal!",
+        text: "Gagal mencatat absensi batch.",
+        icon: "error",
+      });
     }
   };
 
   const handleSelectAll = () => {
     if (filteredUsers.length === selectedUsers.length) {
-      setSelectedUsers([]); 
+      setSelectedUsers([]);
     } else {
       setSelectedUsers(filteredUsers.map((user) => user.id));
     }
   };
-
 
   const handleCheckboxChange = (userID) => {
     setSelectedUsers((prevSelectedUsers) =>
@@ -162,7 +243,7 @@ const UsersAbsent = () => {
                   <table className="min-w-full max-w-full">
                     <thead>
                       <tr className="bg-gray-100">
-                      <th className="px-6 py-3 border text-left">
+                        <th className="px-6 py-3 border text-left">
                           <input
                             type="checkbox"
                             checked={filteredUsers.length === selectedUsers.length}
@@ -172,9 +253,7 @@ const UsersAbsent = () => {
                         <th className="px-6 py-3 border text-left">Nama</th>
                         <th className="px-6 py-3 border text-left">NIP</th>
                         <th className="px-6 py-3 border text-left">Kelamin</th>
-                        <th className="px-6 py-3 border text-left">
-                          Mata Pelajaran
-                        </th>
+                        <th className="px-6 py-3 border text-left">Mata Pelajaran</th>
                         <th className="px-6 py-3 border text-left">Gambar</th>
                         <th className="px-6 py-3 border text-left">Aksi</th>
                       </tr>
@@ -195,36 +274,26 @@ const UsersAbsent = () => {
                           <td className="px-6 py-3">{user.mapel}</td>
                           <td className="px-6 py-3">
                             <img
-                              src={
-                                user.image
-                                  ? `/images/${user.image}`
-                                  : "/images/default.jpeg"
-                              }
+                              src={user.image ? `/images/${user.image}` : "/images/default.jpeg"}
                               alt={user.name}
                               className="w-16 h-16 rounded-full object-cover"
                             />
                           </td>
                           <td className="px-6 py-3">
                             <button
-                              onClick={() =>
-                                handleAbsenceSingle(user.id, "sakit")
-                              }
+                              onClick={() => handleAbsenceSingle(user.id)}
                               className="px-4 py-2 bg-green-500 text-white rounded-md mr-2"
                             >
                               Sakit
                             </button>
                             <button
-                              onClick={() =>
-                                handleAbsenceSingle(user.id, "ijin")
-                              }
+                              onClick={() => handleAbsenceSingle(user.id)}
                               className="px-4 py-2 bg-blue-500 text-white rounded-md mr-2"
                             >
                               Ijin
                             </button>
                             <button
-                              onClick={() =>
-                                handleAbsenceSingle(user.id, "alfa")
-                              }
+                              onClick={() => handleAbsenceSingle(user.id)}
                               className="px-4 py-2 bg-red-500 text-white rounded-md"
                             >
                               Alfa
@@ -241,62 +310,12 @@ const UsersAbsent = () => {
                 )}
               </div>
 
-              {/* Multi-select action */}
               <button
-                onClick={() => setIsModalOpen(true)} // Open Modal
+                onClick={handleAbsenceBatch}
                 className="px-6 py-2 bg-purple-500 text-white rounded mt-4"
               >
                 Terapkan Absensi ke Semua
               </button>
-
-              {/* Modal Confirmation */}
-              {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                  <div className="bg-white p-8 rounded shadow-lg">
-                    <h3 className="text-2xl font-semibold mb-4">
-                      Pilih Tipe Absensi
-                    </h3>
-                    <div className="flex gap-4 mb-4">
-                      <button
-                        onClick={() => setAbsenceType("sakit")}
-                        className={`px-4 py-2 bg-green-500 text-white rounded-md ${
-                          absenceType === "sakit" ? "bg-green-600" : ""
-                        }`}
-                      >
-                        Sakit
-                      </button>
-                      <button
-                        onClick={() => setAbsenceType("ijin")}
-                        className={`px-4 py-2 bg-blue-500 text-white rounded-md ${
-                          absenceType === "ijin" ? "bg-blue-600" : ""
-                        }`}
-                      >
-                        Ijin
-                      </button>
-                      <button
-                        onClick={() => setAbsenceType("alfa")}
-                        className={`px-4 py-2 bg-red-500 text-white rounded-md ${
-                          absenceType === "alfa" ? "bg-red-600" : ""
-                        }`}
-                      >
-                        Alfa
-                      </button>
-                    </div>
-                    <button
-                      onClick={handleAbsenceBatch}
-                      className="px-6 py-2 bg-blue-500 text-white rounded-md"
-                    >
-                      Konfirmasi
-                    </button>
-                    <button
-                      onClick={() => setIsModalOpen(false)}
-                      className="px-4 py-2 bg-gray-500 text-white rounded-md ml-4"
-                    >
-                      Batal
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
           </main>
         </div>
