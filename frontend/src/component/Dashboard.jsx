@@ -2,276 +2,139 @@ import React, { useEffect, useState } from "react";
 import Preloader from "./partial/Preloader";
 import Sidebar from "./partial/Sidebar";
 import Header from "./partial/Header";
-import CardDashboard from "./Dashboard/Card";
-
+import TitleBox from "./Title";
+import { getDashboard, getDashboardHadir, getDashboardFullHadir, getDashboardFullTerlambat } from "./api";
+import Card from "./Dashboard/Card";
 import {
-  getTotalTeachersPresentToday,
-  getTotalTeachersOnSickLeaveToday,
-  getTeachersPresentPerMonth,
-  getTotalTeachersArrivedLateToday,
-  getTeachersAbsentLast30Days,
-  getTeachersPresentPerWeek,
-  getAverageMonthlyAttendance,
-} from "./api";
-import { Line, Bar, Pie } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-} from "chart.js";
+  faCalendarCheck,
+  faClock,
+  faHospital,
+  faTimes,
+  faUsers,
+} from "@fortawesome/free-solid-svg-icons";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement
-);
+import { Line } from "react-chartjs-2";
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 function Dashboard() {
-  const [loading, setLoading] = useState(true);
-  const [teachersPresentToday, setTeachersPresentToday] = useState(0);
-  const [teachersSickToday, setTeachersSickToday] = useState(0);
-  const [averageMonthlyAttendance, setAverageMonthlyAttendance] = useState(0);
-  const [teachersLateToday, setTeachersLateToday] = useState(0);
-  const [weeklyAttendance, setWeeklyAttendance] = useState([]);
-  const [monthlyAttendance, setMonthlyAttendance] = useState([]); // Data untuk grafik Line
-  const [absentStats, setAbsentStats] = useState([]); // Data untuk grafik Bar
-  const [teacherStatus, setTeacherStatus] = useState({
-    present: 0,
-    sick: 0,
-    late: 0,
-  }); // Data untuk grafik Pie
+  const [cardData, setCardData] = useState([]);
+
+  const [fullHadirValue, setFullHadirValue] = useState(0);
+  const [fullTerlambatValue, setFullTerlambatValue] = useState(0);
+
+  const fetchDashboardData = async () => {
+    try {
+      const sakitData = await getDashboard("sakit");
+      const izinData = await getDashboard("ijin");
+      const alphaData = await getDashboard("alfa");
+      const terlambatData = await getDashboard("terlambat");
+      const hadirData = await getDashboardHadir();
+      const fullHadirData = await getDashboardFullHadir();
+      const fullTerlambatData = await getDashboardFullTerlambat();
+
+      const sakitValue = sakitData[0]?.hasil || 0;
+      const izinValue = izinData[0]?.hasil || 0;
+      const alphaValue = alphaData[0]?.hasil || 0;
+      const terlambatValue = terlambatData[0]?.hasil || 0;
+      const hadirValue = hadirData[0]?.hasil || 0;
+      const fullHadir = fullHadirData[0]?.hasil || 0;
+      const fullTerlambat = fullTerlambatData[0]?.hasil || 0;
+
+      setCardData([
+        { title: "Hadir", description: "Jumlah Guru yang Hadir Hari Ini", icon: faUsers, bgColor: "bg-green-500", value: hadirValue },
+        { title: "Sakit", description: "Guru Sakit Hari Ini", icon: faHospital, bgColor: "bg-red-500", value: sakitValue },
+        { title: "Ijin", description: "Guru Ijin Hari Ini", icon: faCalendarCheck, bgColor: "bg-blue-500", value: izinValue },
+        { title: "Alfa", description: "Guru Alfa Hari Ini", icon: faTimes, bgColor: "bg-gray-500", value: alphaValue },
+        { title: "Terlambat", description: "Guru Terlambat Hari Ini", icon: faClock, bgColor: "bg-yellow-500", value: terlambatValue },
+      ]);
+
+      setFullHadirValue(fullHadir);
+      setFullTerlambatValue(fullTerlambat);
+    } catch (error) {
+      console.error("Error fetching dashboard data", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const presentRes = await getTotalTeachersPresentToday();
-        const sickRes = await getTotalTeachersOnSickLeaveToday();
-        const avgAttendanceRes = await getAverageMonthlyAttendance();
-        const lateRes = await getTotalTeachersArrivedLateToday();
-        const weeklyAttendanceRes = await getTeachersPresentPerWeek();
-        const teacherAbsencesRes = await getTeachersAbsentLast30Days(); // Data untuk grafik Bar
-        const monthlyAttendanceRes = await getTeachersPresentPerMonth(); // Data untuk grafik Line
-
-        // Set data
-        setTeachersPresentToday(presentRes.data.total_teachers_present || 0);
-        setTeachersSickToday(sickRes.data.total_teachers_sick_leave || 0);
-        setAverageMonthlyAttendance(
-          parseFloat(avgAttendanceRes.data.average_monthly_attendance || 0)
-        );
-        setTeachersLateToday(lateRes.data.total_teachers_late || 0);
-        setWeeklyAttendance(weeklyAttendanceRes.data || []);
-        setTeacherStatus({
-          present: presentRes.data.total_teachers_present,
-          sick: sickRes.data.total_teachers_sick_leave,
-          late: lateRes.data.total_teachers_late,
-        });
-
-        // Grafik data untuk line chart (absensi per bulan)
-        setMonthlyAttendance(monthlyAttendanceRes.data || []);
-        console.log(monthlyAttendance.data);
-
-        // Grafik data untuk bar chart (jumlah guru tidak hadir di 30 hari terakhir)
-        setAbsentStats(teacherAbsencesRes.data || []);
-      } catch (error) {
-        console.error("Error fetching dashboard data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchDashboardData();
   }, []);
 
-  const processedAbsentStats = absentStats.reduce((acc, item) => {
-    if (acc[item.name]) {
-      acc[item.name]++;
-    } else {
-      acc[item.name] = 1;
-    }
-    return acc;
-  }, {});
-
-  if (loading) {
-    return <Preloader />;
-  }
-
-  const getWeekDateRange = (weekNumber) => {
-    const startDate = new Date();
-    const endDate = new Date();
-
-    startDate.setDate(
-      startDate.getDate() - startDate.getDay() + (weekNumber - 1) * 7
-    ); 
-
-    endDate.setDate(startDate.getDate() + 6); 
-
-    const formatOptions = { year: "numeric", month: "short", day: "numeric" };
-    return `${startDate.toLocaleDateString(
-      "en-GB",
-      formatOptions
-    )} - ${endDate.toLocaleDateString("en-GB", formatOptions)}`;
-  };
-
-  const lineData = {
-    labels: monthlyAttendance.map((item) => {
-      // Format bulan menjadi nama bulan
-      const months = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ];
-      return months[item.month - 1]; // Menyesuaikan angka bulan (1-12)
-    }), // Nama bulan
+  const chartData = {
+    labels: ["Full Hadir", "Full Terlambat"],
     datasets: [
       {
-        label: "Jumlah Guru Hadir per Bulan",
-        data: monthlyAttendance.map((item) => item.total_present), // Jumlah hadir
-        borderColor: "rgba(75,192,192,1)",
-        backgroundColor: "rgba(75,192,192,0.2)",
-        borderWidth: 2,
+        label: "Full Hadir",
+        data: [0, fullTerlambatValue],
+        fill: true,
+        backgroundColor: "rgba(52, 211, 153, 0.4)",
+        borderColor: "#34D399",
+        borderWidth: 3,
+        tension: 0.7, 
+        cubicInterpolationMode: 'monotone', 
+      },
+      {
+        label: "Full Terlambat",
+        data: [0, fullHadirValue],
+        fill: true,
+        backgroundColor: "rgba(250, 191, 36, 0.4)",
+        borderColor: "#FBBF24",
+        borderWidth: 3,
+        tension: 0.7, 
+        cubicInterpolationMode: 'monotone',
       },
     ],
   };
+  
 
-  const barData = {
-    labels: Object.keys(processedAbsentStats), // Nama Guru
-    datasets: [
-      {
-        label: "Jumlah Ketidakhadiran per Guru (30 Hari Terakhir)",
-        data: Object.values(processedAbsentStats), // Jumlah ketidakhadiran
-        backgroundColor: "rgba(255,99,132,0.2)",
-        borderColor: "rgba(255,99,132,1)",
-        borderWidth: 1,
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 100,
       },
-    ],
-  };
-
-  // Data untuk Pie Chart (Status Absensi Guru)
-  const pieData = {
-    labels: ["Present", "Sick", "Late"],
-    datasets: [
-      {
-        data: [teacherStatus.present, teacherStatus.sick, teacherStatus.late],
-        backgroundColor: ["#36A2EB", "#FF6384", "#FFCE56"],
-        hoverBackgroundColor: ["#36A2EB", "#FF6384", "#FFCE56"],
+    },
+    plugins: {
+      title: {
+        display: true,
+        text: "Daftar Hadi Dan Terlambat",
       },
-    ],
-  };
-
-  // Data untuk Weekly Attendance Chart
-  const weeklyData = {
-    labels: weeklyAttendance.map((item, index) => getWeekDateRange(index + 1)), // Mengonversi minggu ke rentang tanggal
-    datasets: [
-      {
-        label: "Jumlah Guru Hadir per Minggu",
-        data: weeklyAttendance.map((item) => item.total_present), // Jumlah hadir
-        borderColor: "rgba(153,102,255,1)",
-        backgroundColor: "rgba(153,102,255,0.2)",
-        borderWidth: 2,
-      },
-    ],
+    },
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-100">
-    <Sidebar />
-    <div className="relative flex flex-1 flex-col overflow-y-auto bg-white">
-      <Header />
-      <main className="p-6 md:p-8 2xl:p-10 mx-auto max-w-screen-2xl">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <CardDashboard
-            title="Teachers Present Today"
-            value={teachersPresentToday}
-            description="Number of teachers present today"
-            percentageChange={null}
-            icon={null}
-            className="bg-indigo-500 text-white shadow-md hover:shadow-lg transition-shadow duration-300"
-          />
-          <CardDashboard
-            title="Teachers on Sick Leave"
-            value={teachersSickToday}
-            description="Number of teachers on sick leave today"
-            percentageChange={null}
-            icon={null}
-            className="bg-red-500 text-white shadow-md hover:shadow-lg transition-shadow duration-300"
-          />
-          <CardDashboard
-            title="Average Monthly Attendance"
-            value={averageMonthlyAttendance}
-            description="Average monthly attendance of teachers"
-            percentageChange={null}
-            icon={null}
-            className="bg-green-500 text-white shadow-md hover:shadow-lg transition-shadow duration-300"
-          />
-          <CardDashboard
-            title="Late Teachers"
-            value={teachersLateToday}
-            description="Number of teachers arriving late today"
-            percentageChange={null}
-            icon={null}
-            className="bg-yellow-500 text-white shadow-md hover:shadow-lg transition-shadow duration-300"
-          />
+    <div>
+      <Preloader />
+      <div className="flex h-screen overflow-hidden bg-gray-100">
+        <Sidebar />
+        <div className="relative flex flex-1 flex-col overflow-y-auto bg-white">
+          <Header />
+          <main className="p-6 md:p-8 2xl:p-10 mx-auto max-w-screen-2xl">
+            <TitleBox title="Dashboard" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 p-6">
+              {cardData.map((data, index) => (
+                <Card
+                  key={index}
+                  title={data.title}
+                  value={data.value}
+                  description={data.description}
+                  icon={data.icon}
+                  bgColor={data.bgColor}
+                />
+              ))}
+            </div>
+            <div className="p-6">
+              <div className="h-96">
+                <Line data={chartData} options={chartOptions} />
+              </div>
+            </div>
+          </main>
         </div>
-  
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mt-5">
-          {/* Row 1 */}
-          <div className="col-span-1 bg-white shadow-lg rounded-xl overflow-hidden">
-            <h3 className="text-xl font-semibold p-4 bg-gray-800 text-white">Monthly Attendance</h3>
-            <div className="p-6" style={{ height: "500px" }}>
-              <Line data={lineData} />
-            </div>
-          </div>
-  
-          {/* Row 2 */}
-          <div className="col-span-1 bg-white shadow-lg rounded-xl overflow-hidden">
-            <h3 className="text-xl font-semibold p-4 bg-gray-800 text-white">Teacher Attendance Status</h3>
-            <div className="p-6" style={{ height: "500px" }}>
-              <Pie data={pieData} />
-            </div>
-          </div>
-  
-          <div className="col-span-1 bg-white shadow-lg rounded-xl overflow-hidden">
-            <h3 className="text-xl font-semibold p-4 bg-gray-800 text-white">Weekly Attendance</h3>
-            <div className="p-6" style={{ height: "500px", width: "100%" }}>
-              <Line data={weeklyData} />
-            </div>
-          </div>
-  
-          <div className="col-span-1 bg-white shadow-lg rounded-xl overflow-hidden">
-            <h3 className="text-xl font-semibold p-4 bg-gray-800 text-white">
-              Absensi Guru (30 Hari Terakhir)
-            </h3>
-            <div className="p-6" style={{ height: "500px" }}>
-              <Bar data={barData} />
-            </div>
-          </div>
-        </div>
-      </main>
+      </div>
     </div>
-  </div>
-  
   );
 }
 

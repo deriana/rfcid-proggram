@@ -6,6 +6,7 @@ import { getRecapAbsen } from "./api";
 import ExportButton from "./Report/Excel";
 import PrintButton from "./Report/PrintButton";
 import { formatDateTime } from "./utilis/formatDateTime";
+import TitleBox from "./Title";
 
 const RecapReport = () => {
   // State untuk menyimpan laporan, rentang tanggal, loading state, dan filter
@@ -83,6 +84,8 @@ const RecapReport = () => {
         <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden bg-gray-200">
           <Header />
           <main className="p-6 space-y-6">
+          <TitleBox title="Rekap Laporan" />
+
             <div className="flex space-x-4 mb-4">
               {/* Input untuk memilih rentang tanggal */}
               <input
@@ -158,6 +161,7 @@ const RecapReport = () => {
                     <tr className="bg-gray-300 text-gray-700">
                       <th className="py-3 px-4 text-left">No</th>
                       <th className="py-3 px-4 text-left">Nama</th>
+                      <th className="py-3 px-4 text-left">NIP</th>
                       <th className="py-3 px-4 text-left">Mata Pelajaran</th>
                       <th className="py-3 px-4 text-left">Hadir</th>
                       <th className="py-3 px-4 text-left">Terlambat</th>
@@ -170,6 +174,7 @@ const RecapReport = () => {
                       <tr key={index} className="border-b hover:bg-gray-50">
                         <td className="py-2 px-4 text-sm">{index + 1}</td>
                         <td className="py-2 px-4 text-sm">{item.Nama}</td>
+                        <td className="py-2 px-4 text-sm">{item.nip}</td>
                         <td className="py-2 px-4 text-sm">{item["Mata Pelajaran"] || "-"}</td>
                         <td className="py-2 px-4 text-sm">{item.Hadir}</td>
                         <td className="py-2 px-4 text-sm">{item.Terlambat}</td>

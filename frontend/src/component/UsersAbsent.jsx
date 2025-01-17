@@ -9,6 +9,7 @@ import {
   getUsersAlfa,
 } from "./api";
 import Swal from "sweetalert2"; // Import SweetAlert2
+import TitleBox from "./Title";
 
 const UsersAbsent = () => {
   const [users, setUsers] = useState([]);
@@ -37,30 +38,15 @@ const UsersAbsent = () => {
     }
   };
 
-  const handleAbsenceSingle = async (userID) => {
-    const result = await Swal.fire({
-      title: "Pilih Jenis Absensi",
-      text: "Pilih jenis absensi yang ingin diterapkan",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Terapkan",
-      cancelButtonText: "Batal",
-      input: "radio",
-      inputOptions: {
-        sakit: "Sakit",
-        ijin: "Ijin",
-        alfa: "Alfa",
-      },
-      inputValidator: (value) => {
-        if (!value) {
-          return "Anda harus memilih jenis absensi";
-        }
-      },
-    });
-
-    if (!result.isConfirmed) return;
-
-    const absenceType = result.value;
+  const handleAbsenceSingle = async (userID, absenceType) => {
+    if (!selectedDate) {
+      Swal.fire({
+        title: "Peringatan!",
+        text: "Pilih tanggal sebelum mencatat absensi.",
+        icon: "warning",
+      });
+      return;
+    }
     const confirmationMessage =
       absenceType === "sakit"
         ? "Apakah Anda yakin ingin menginput absen sebagai sakit?"
@@ -80,23 +66,23 @@ const UsersAbsent = () => {
     if (!confirmAbsence.isConfirmed) return;
 
     try {
-      const today = new Date().toISOString().split("T")[0];
-      const effectiveDate = selectedDate || today;
-
+      const today = selectedDate
       let response;
       if (absenceType === "sakit") {
-        response = await getUsersHurt({ userID, date: effectiveDate });
+        response = await getUsersHurt({ userID, date: today });
       } else if (absenceType === "ijin") {
-        response = await getUsersPermission({ userID, date: effectiveDate });
+        response = await getUsersPermission({ userID, date: today });
       } else if (absenceType === "alfa") {
-        response = await getUsersAlfa({ userID, date: effectiveDate });
+        response = await getUsersAlfa({ userID, date: today });
       }
 
       Swal.fire({
         title: "Berhasil!",
-        text: response?.message || "Absensi berhasil dicatat.",
+        text: response?.message || `Absensi ${absenceType} telah dicatat.`,
         icon: "success",
       });
+
+      // Menghapus user dari list
       setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userID));
     } catch (error) {
       console.error(error);
@@ -215,9 +201,8 @@ const UsersAbsent = () => {
           <Header />
           <main>
             <div className="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
-              <h1 className="text-3xl font-bold mb-4 text-gray-800">
-                Guru Belum Absen
-              </h1>
+              <TitleBox title="Absensi Guru" />
+
               {error && <div className="text-red-500 mb-4">{error}</div>}
 
               <div className="mb-4 flex gap-4">
@@ -226,7 +211,7 @@ const UsersAbsent = () => {
                   className="p-2 border rounded"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
-                  max={new Date().toISOString().split("T")[0]} // This will set the max date as today
+                  max={new Date().toISOString().split("T")[0]}
                   placeholder="Pilih Tanggal"
                 />
                 <input
@@ -246,14 +231,18 @@ const UsersAbsent = () => {
                         <th className="px-6 py-3 border text-left">
                           <input
                             type="checkbox"
-                            checked={filteredUsers.length === selectedUsers.length}
+                            checked={
+                              filteredUsers.length === selectedUsers.length
+                            }
                             onChange={handleSelectAll}
                           />
                         </th>
                         <th className="px-6 py-3 border text-left">Nama</th>
                         <th className="px-6 py-3 border text-left">NIP</th>
                         <th className="px-6 py-3 border text-left">Kelamin</th>
-                        <th className="px-6 py-3 border text-left">Mata Pelajaran</th>
+                        <th className="px-6 py-3 border text-left">
+                          Mata Pelajaran
+                        </th>
                         <th className="px-6 py-3 border text-left">Gambar</th>
                         <th className="px-6 py-3 border text-left">Aksi</th>
                       </tr>
@@ -274,26 +263,36 @@ const UsersAbsent = () => {
                           <td className="px-6 py-3">{user.mapel}</td>
                           <td className="px-6 py-3">
                             <img
-                              src={user.image ? `/images/${user.image}` : "/images/default.jpeg"}
+                              src={
+                                user.image
+                                  ? `/images/${user.image}`
+                                  : "/images/default.jpeg"
+                              }
                               alt={user.name}
                               className="w-16 h-16 rounded-full object-cover"
                             />
                           </td>
-                          <td className="px-6 py-3">
+                          <td className="px-6 py-3 border border-gray-300">
                             <button
-                              onClick={() => handleAbsenceSingle(user.id)}
+                              onClick={() =>
+                                handleAbsenceSingle(user.id, "sakit")
+                              }
                               className="px-4 py-2 bg-green-500 text-white rounded-md mr-2"
                             >
                               Sakit
                             </button>
                             <button
-                              onClick={() => handleAbsenceSingle(user.id)}
+                              onClick={() =>
+                                handleAbsenceSingle(user.id, "ijin")
+                              }
                               className="px-4 py-2 bg-blue-500 text-white rounded-md mr-2"
                             >
                               Ijin
                             </button>
                             <button
-                              onClick={() => handleAbsenceSingle(user.id)}
+                              onClick={() =>
+                                handleAbsenceSingle(user.id, "alfa")
+                              }
                               className="px-4 py-2 bg-red-500 text-white rounded-md"
                             >
                               Alfa

@@ -290,7 +290,7 @@ export const getReportByDateRange = async (startDate, endDate) => {
   }
 };
 
-// Fungsi untuk mengambil laporan terlambat untuk guru 
+// Fungsi untuk mengambil laporan terlambat untuk guru
 export const getLateScansTeacher = async (startDate, endDate) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/laporan/terlambat/guru`, {
@@ -343,140 +343,6 @@ export const getRecapAbsen = async (startDate, endDate) => {
     return null;
   }
 };
-export const getTotalTeachersAbsentToday = async () => {
-  try {
-    const response = await axios.get(
-      `${API_BASE_URL}/dashboard/teachers-absent-today`
-    );
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Error fetching total teachers absent today:",
-      error.response?.data || error.message
-    );
-    throw error.response ? error.response.data : error;
-  }
-};
-
-export const getTotalTeachersPresentToday = async () => {
-  try {
-    const response = await axios.get(
-      `${API_BASE_URL}/dashboard/teachers-present-today`
-    );
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Error fetching total teachers absent today:",
-      error.response?.data || error.message
-    );
-    throw error.response ? error.response.data : error;
-  }
-};
-
-export const getTotalTeachersOnSickLeaveToday = async () => {
-  try {
-    const response = await axios.get(
-      `${API_BASE_URL}/dashboard/teachers-sick-leave-today`
-    );
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Error fetching total teachers on sick leave today:",
-      error.response?.data || error.message
-    );
-    throw error.response ? error.response.data : error;
-  }
-};
-
-export const getTeachersPresentPerMonth = async () => {
-  try {
-    const response = await axios.get(
-      `${API_BASE_URL}/dashboard/teachers-present-per-month`
-    );
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Error fetching teachers present per month:",
-      error.response?.data || error.message
-    );
-    throw error.response ? error.response.data : error;
-  }
-};
-
-export const getTotalTeachersArrivedLateToday = async () => {
-  try {
-    const response = await axios.get(
-      `${API_BASE_URL}/dashboard/teachers-arrived-late-today`
-    );
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Error fetching total teachers arrived late today:",
-      error.response?.data || error.message
-    );
-    throw error.response ? error.response.data : error;
-  }
-};
-
-export const getTotalAttendancePerTeacherLast30Days = async () => {
-  try {
-    const response = await axios.get(
-      `${API_BASE_URL}/dashboard/attendance-per-teacher-last-30-days`
-    );
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Error fetching total attendance per teacher last 30 days:",
-      error.response?.data || error.message
-    );
-    throw error.response ? error.response.data : error;
-  }
-};
-
-export const getTeachersAbsentLast30Days = async () => {
-  try {
-    const response = await axios.get(
-      `${API_BASE_URL}/dashboard/teachers-absent-last-30-days`
-    );
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Error fetching teachers absent last 30 days:",
-      error.response?.data || error.message
-    );
-    throw error.response ? error.response.data : error;
-  }
-};
-
-export const getTeachersPresentPerWeek = async () => {
-  try {
-    const response = await axios.get(
-      `${API_BASE_URL}/dashboard/teachers-present-per-week`
-    );
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Error fetching teachers present per week:",
-      error.response?.data || error.message
-    );
-    throw error.response ? error.response.data : error;
-  }
-};
-
-export const getAverageMonthlyAttendance = async () => {
-  try {
-    const response = await axios.get(
-      `${API_BASE_URL}/dashboard/average-monthly-attendance`
-    );
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Error fetching average monthly attendance:",
-      error.response?.data || error.message
-    );
-    throw error.response ? error.response.data : error;
-  }
-};
 
 export const uploadXlsx = async (formData) => {
   try {
@@ -511,6 +377,93 @@ export const checkUserAbsent = async (date = null) => {
   }
 };
 
+export const getDashboard = async (type) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/dashboard`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ type }),
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      return result.data;
+    } else {
+      throw new Error(result.message || "Terjadi kesalahan saat memuat data.");
+    }
+  } catch (error) {
+    console.error("Error fetching dashboard data", error);
+    throw new Error(error.message);
+  }
+};
+
+export const getDashboardHadir = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/dashboard/hadir`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      return result.data; 
+    } else {
+      throw new Error(result.message || "Terjadi kesalahan saat memuat data.");
+    }
+  } catch (error) {
+    console.error("Error fetching dashboard hadir data", error);
+    throw new Error(error.message);
+  }
+};
+export const getDashboardFullHadir = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/dashboard/full/hadir`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      return result.data; 
+    } else {
+      throw new Error(result.message || "Terjadi kesalahan saat memuat data.");
+    }
+  } catch (error) {
+    console.error("Error fetching dashboard hadir data", error);
+    throw new Error(error.message);
+  }
+};
+export const getDashboardFullTerlambat = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/dashboard/full/terlambat`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      return result.data; 
+    } else {
+      throw new Error(result.message || "Terjadi kesalahan saat memuat data.");
+    }
+  } catch (error) {
+    console.error("Error fetching dashboard hadir data", error);
+    throw new Error(error.message);
+  }
+};
+
 export default {
   loginUser,
   getUsers,
@@ -531,16 +484,11 @@ export default {
   getReportByDateRange,
   getLateScansTeacher,
   getScansByTeacherDateRange,
-  getTotalTeachersAbsentToday,
-  getTotalTeachersOnSickLeaveToday,
-  getTeachersPresentPerMonth,
-  getTotalTeachersArrivedLateToday,
-  getTotalAttendancePerTeacherLast30Days,
-  getTeachersAbsentLast30Days,
-  getTeachersPresentPerWeek,
-  getAverageMonthlyAttendance,
-  getTotalTeachersPresentToday,
   uploadXlsx,
   checkUserAbsent,
   getRecapAbsen,
+  getDashboard,
+  getDashboardHadir,
+  getDashboardFullHadir,
+  getDashboardFullTerlambat
 };

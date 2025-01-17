@@ -76,7 +76,7 @@ const RegisterUserPage = () => {
         navigate("/users");
       } catch (error) {
         // Log the full error object to see its structure
-        console.log(error);
+        console.error(error);
 
         // SweetAlert Error
         Swal.fire({

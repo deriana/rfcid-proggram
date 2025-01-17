@@ -6,6 +6,7 @@ import { getUsers, deleteUser } from "./api";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2"; // Import SweetAlert
 import ImportExcel from "./ImportExcel";
+import TitleBox from "./Title";
 
 function Users() {
   const [users, setUsers] = useState([]);
@@ -84,62 +85,82 @@ function Users() {
   );
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-100">
       <Preloader />
-      <div className="flex h-screen overflow-hidden">
-        <Sidebar />
-        <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden bg-gray-200">
-          <Header />
-          <main>
-            <div className="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
-              <h1 className="text-3xl font-bold mb-4 text-gray-800">
-                Dashboard Users
-              </h1>
 
-              <button
-                onClick={() => navigate("/register")}
-                className="px-4 py-2 text-white font-medium rounded bg-blue-500 hover:bg-blue-600 mb-4"
-              >
-                Buka Form Registrasi
-              </button>
+      <div className="flex h-screen overflow-hidden">
+        {/* Sidebar */}
+        <Sidebar />
+        <div className="relative flex flex-1 flex-col overflow-y-auto bg-gray-200">
+          <Header />
+
+          <main className="px-4 md:px-6 lg:px-8 py-6 w-full">
+            {/* TitleBox Component */}
+
+            <div className="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
+              <TitleBox title="Guru" />
+
+              {/* Button to Register */}
 
               <ImportExcel />
 
               {/* Users Table */}
-              <div className="bg-white p-6 rounded shadow-md overflow-x-auto">
-                <input
-                  type="text"
-                  placeholder="Cari nama guru"
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                  className="px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-500 mb-4"
-                />
+              <div className="bg-white p-6 rounded-xl shadow-md overflow-x-auto">
+                <div className="flex-row justify-between w-full">
+                  <input
+                    type="text"
+                    placeholder="Cari nama guru"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    className="px-4 py-2 mb-4 w-full max-w-xs border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <button
+                    onClick={() => navigate("/register")}
+                    className="px-6 py-3 mb-6 ml-10 text-white font-medium rounded-lg bg-blue-500 hover:bg-blue-600 shadow-md transition duration-300"
+                  >
+                    Tambahkan Guru
+                  </button>
+                </div>
 
-                <table className="min-w-full max-w-full">
+                <table className="min-w-full table-auto">
                   <thead>
                     <tr className="bg-gray-100">
-                      <th className="px-6 py-3 border text-left">Nama</th>
-                      <th className="px-6 py-3 border text-left">Nip</th>
-                      <th className="px-6 py-3 border text-left">Kelamin</th>
-                      <th className="px-6 py-3 border text-left">
+                      <th className="px-6 py-3 border text-left text-sm font-semibold text-gray-600">
+                        Nama
+                      </th>
+                      <th className="px-6 py-3 border text-left text-sm font-semibold text-gray-600">
+                        Nip
+                      </th>
+                      <th className="px-6 py-3 border text-left text-sm font-semibold text-gray-600">
+                        Kelamin
+                      </th>
+                      <th className="px-6 py-3 border text-left text-sm font-semibold text-gray-600">
                         Mata Pelajaran
                       </th>
-                      <th className="px-6 py-3 border text-left">Gambar</th>
-                      <th className="px-6 py-3 border text-left">Aksi</th>
+                      <th className="px-6 py-3 border text-left text-sm font-semibold text-gray-600">
+                        Gambar
+                      </th>
+                      <th className="px-6 py-3 border text-left text-sm font-semibold text-gray-600">
+                        Aksi
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredUsers.map((user) => (
-                      <tr key={user.id} className="border-b">
+                      <tr key={user.id} className="border-b hover:bg-gray-50">
                         <td className="px-6 py-3">{user.name}</td>
                         <td className="px-6 py-3">{user.nip}</td>
                         <td className="px-6 py-3">{user.kelamin}</td>
                         <td className="px-6 py-3">{user.mapel}</td>
 
-                        {/* Kolom Gambar */}
+                        {/* Gambar Kolom */}
                         <td className="px-6 py-3">
                           <img
-                            src={user.image ? `/images/${user.image}` : "/images/default.jpeg"}
+                            src={
+                              user.image
+                                ? `/images/${user.image}`
+                                : "/images/default.jpeg"
+                            }
                             alt={user.name}
                             className="w-16 h-16 rounded-full object-cover" // Menyesuaikan ukuran gambar
                           />
@@ -148,13 +169,13 @@ function Users() {
                         <td className="px-6 py-3">
                           <button
                             onClick={() => navigate(`/users/edit/${user.id}`)}
-                            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md mr-2"
+                            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 mr-2"
                           >
                             Edit
                           </button>
                           <button
                             onClick={() => handleDelete(user.id)} // langsung panggil handleDelete
-                            className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md"
+                            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
                           >
                             Delete
                           </button>

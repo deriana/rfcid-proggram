@@ -8,7 +8,7 @@ const getAllReport = async () => {
     SELECT 
         s.id AS No,
         u.name AS Nama,
-        u.rfid AS RFID,
+        u.nip AS nip,
         u.kelamin AS Kelamin,
         u.mapel AS 'Mata Pelajaran',
         s.timestamp AS 'Waktu Absensi',
@@ -36,7 +36,7 @@ const getScansByDateRange = async (startDate, endDate) => {
     SELECT 
         s.id AS No,
         u.name AS Nama,
-        u.rfid AS RFID,
+        u.nip AS nip,
         u.kelamin AS Kelamin,
         u.mapel AS 'Mata Pelajaran',
         s.timestamp AS 'Waktu Absensi',
@@ -64,7 +64,7 @@ const getLateScansTeacher = async (startDate, endDate) => {
       SELECT 
         s.id AS No,
         u.name AS Nama,
-        u.rfid AS RFID,
+        u.nip AS nip,
         u.kelamin AS Kelamin,
         u.mapel AS 'Mata Pelajaran',
         s.timestamp AS 'Waktu Absensi',
@@ -92,6 +92,7 @@ const getReportByTeacherDateRange = async (id, startDate, endDate) => {
   const query = `
     SELECT 
         u.name AS Nama,
+        u.nip AS nip,
         u.mapel AS 'Mata Pelajaran',
         s.timestamp AS 'Waktu Absensi',
         s.type AS 'Jenis Absensi'
@@ -117,6 +118,7 @@ const getRecapAbsen = async (startDate, endDate) => {
 
   const query = `SELECT 
     u.name AS Nama,
+    u.nip AS nip,
     u.mapel AS 'Mata Pelajaran',
     COUNT(CASE WHEN s.type = 'masuk' THEN 1 END) AS 'Hadir',
     COUNT(CASE WHEN s.type = 'terlambat' THEN 1 END) AS 'Terlambat',

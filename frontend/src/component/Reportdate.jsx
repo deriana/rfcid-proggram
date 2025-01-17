@@ -6,6 +6,7 @@ import { getReportByDateRange } from "./api";
 import ExportButton from "./Report/Excel";
 import PrintButton from "./Report/PrintButton";
 import { formatDateTime } from "./utilis/formatDateTime";
+import TitleBox from "./Title";
 
 const ReportDate = () => {
   // State untuk menyimpan laporan, rentang tanggal, dan loading state
@@ -13,7 +14,7 @@ const ReportDate = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");  // State untuk pencarian
+  const [searchTerm, setSearchTerm] = useState(""); // State untuk pencarian
 
   // Fungsi untuk menangani perubahan pada input tanggal mulai
   const handleStartDateChange = (event) => {
@@ -27,7 +28,7 @@ const ReportDate = () => {
 
   // Fungsi untuk menangani perubahan pada input pencarian
   const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value.toLowerCase());  // Mengubah ke lowercase agar pencarian tidak sensitif terhadap kapitalisasi
+    setSearchTerm(event.target.value.toLowerCase()); // Mengubah ke lowercase agar pencarian tidak sensitif terhadap kapitalisasi
   };
 
   // Fungsi untuk menangani pengambilan data laporan berdasarkan rentang tanggal
@@ -55,9 +56,10 @@ const ReportDate = () => {
   }, [startDate, endDate]);
 
   // Fungsi untuk melakukan pencarian di data laporan
-  const filteredReports = reportData.filter((item) =>
-    item.Nama.toLowerCase().includes(searchTerm) ||
-    item.RFID.includes(searchTerm)
+  const filteredReports = reportData.filter(
+    (item) =>
+      item.Nama.toLowerCase().includes(searchTerm) ||
+      item.RFID.includes(searchTerm)
   );
 
   return (
@@ -68,6 +70,8 @@ const ReportDate = () => {
         <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden bg-gray-200">
           <Header />
           <main className="p-6 space-y-6">
+            <TitleBox title="Laporan Tanggal" />
+
             <div className="flex space-x-4 mb-4">
               {/* Input untuk memilih rentang tanggal */}
               <input
@@ -98,15 +102,19 @@ const ReportDate = () => {
 
             {/* Tombol Export dan Print - Ditempatkan di atas tabel */}
             <div className="flex space-x-4 mt-6 mb-4">
-              <ExportButton data={filteredReports} columns={[
-                { header: "No", field: "No" },
-                { header: "Nama", field: "Nama" },
-                { header: "RFID", field: "RFID" },
-                { header: "Kelamin", field: "Kelamin" },
-                { header: "Mata Pelajaran", field: "Mata Pelajaran" },
-                { header: "Waktu Absensi", field: "Waktu Absensi" },
-                { header: "Jenis Absensi", field: "Jenis Absensi" }
-              ]} tableName="Laporan Absensi" />
+              <ExportButton
+                data={filteredReports}
+                columns={[
+                  { header: "No", field: "No" },
+                  { header: "Nama", field: "Nama" },
+                  { header: "NIP", field: "NIP" },
+                  { header: "Kelamin", field: "Kelamin" },
+                  { header: "Mata Pelajaran", field: "Mata Pelajaran" },
+                  { header: "Waktu Absensi", field: "Waktu Absensi" },
+                  { header: "Jenis Absensi", field: "Jenis Absensi" },
+                ]}
+                tableName="Laporan Absensi"
+              />
 
               <PrintButton />
             </div>
@@ -117,16 +125,22 @@ const ReportDate = () => {
               </div>
             ) : filteredReports.length === 0 ? (
               <div className="text-center py-10">
-                <h2 className="text-xl font-bold text-gray-600">No reports available for the selected date range and search criteria.</h2>
+                <h2 className="text-xl font-bold text-gray-600">
+                  No reports available for the selected date range and search
+                  criteria.
+                </h2>
               </div>
             ) : (
               <div className="overflow-x-auto shadow-lg rounded-lg">
-                <table id="table-to-print" className="min-w-full bg-white border border-gray-300">
+                <table
+                  id="table-to-print"
+                  className="min-w-full bg-white border border-gray-300"
+                >
                   <thead>
                     <tr className="bg-gray-300 text-gray-700">
                       <th className="py-3 px-4 text-left">No</th>
                       <th className="py-3 px-4 text-left">Nama</th>
-                      <th className="py-3 px-4 text-left">RFID</th>
+                      <th className="py-3 px-4 text-left">NIP</th>
                       <th className="py-3 px-4 text-left">Kelamin</th>
                       <th className="py-3 px-4 text-left">Mata Pelajaran</th>
                       <th className="py-3 px-4 text-left">Waktu Absensi</th>
@@ -138,13 +152,17 @@ const ReportDate = () => {
                       <tr key={item.No} className="border-b hover:bg-gray-50">
                         <td className="py-2 px-4 text-sm">{index + 1}</td>
                         <td className="py-2 px-4 text-sm">{item.Nama}</td>
-                        <td className="py-2 px-4 text-sm">{item.RFID}</td>
+                        <td className="py-2 px-4 text-sm">{item.nip}</td>
                         <td className="py-2 px-4 text-sm">{item.Kelamin}</td>
-                        <td className="py-2 px-4 text-sm">{item["Mata Pelajaran"]}</td>
+                        <td className="py-2 px-4 text-sm">
+                          {item["Mata Pelajaran"]}
+                        </td>
                         <td className="py-2 px-4 text-sm">
                           {formatDateTime(item["Waktu Absensi"])}
                         </td>
-                        <td className="py-2 px-4 text-sm">{item["Jenis Absensi"]}</td>
+                        <td className="py-2 px-4 text-sm">
+                          {item["Jenis Absensi"]}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

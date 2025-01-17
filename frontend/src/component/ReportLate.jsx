@@ -6,6 +6,7 @@ import { getLateScansTeacher, getUsers } from "./api"; // Impor API untuk mendap
 import ExportButton from "./Report/Excel";
 import PrintButton from "./Report/PrintButton";
 import { formatDateTime } from "./utilis/formatDateTime"; // Untuk format tanggal
+import TitleBox from "./Title";
 
 const ReportLate = () => {
   // State untuk menyimpan laporan, rentang tanggal, dan loading state
@@ -15,6 +16,8 @@ const ReportLate = () => {
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]); // State untuk user data
   const [selectedTeacherName, setSelectedTeacherName] = useState(""); // State untuk nama guru yang dipilih
+  const [searchTeacher, setSearchTeacher] = useState(""); // State untuk input pencarian guru
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Menyimpan apakah dropdown terbuka atau tidak
 
   const handleStartDateChange = (event) => {
     setStartDate(event.target.value);
@@ -26,8 +29,14 @@ const ReportLate = () => {
   };
 
   // Fungsi untuk menangani perubahan pada input dropdown pemilihan user
-  const handleTeacherChange = (event) => {
-    setSelectedTeacherName(event.target.value);
+  const handleTeacherChange = (teacherName) => {
+    setSelectedTeacherName(teacherName);
+    setIsDropdownOpen(false); // Tutup dropdown setelah memilih
+  };
+
+  // Fungsi untuk menangani pencarian guru
+  const handleSearchTeacherChange = (event) => {
+    setSearchTeacher(event.target.value);
   };
 
   // Fungsi untuk menangani pengambilan data laporan berdasarkan rentang tanggal
@@ -39,7 +48,6 @@ const ReportLate = () => {
 
     setLoading(true);
     const data = await getLateScansTeacher(startDate, endDate);
-    console.log(data);
     if (data) {
       setReportData(data);
     } else {
@@ -72,6 +80,11 @@ const ReportLate = () => {
     selectedTeacherName ? item.Nama === selectedTeacherName : true
   );
 
+  // Filter daftar guru berdasarkan input pencarian
+  const filteredUsers = users.filter((user) =>
+    user.name.toLowerCase().includes(searchTeacher.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Preloader />
@@ -80,6 +93,8 @@ const ReportLate = () => {
         <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden bg-gray-200">
           <Header />
           <main className="p-6 space-y-6">
+            <TitleBox title="Laporan Terlambat" />
+
             <div className="flex space-x-4 mb-4">
               {/* Input untuk memilih rentang tanggal */}
               <input
@@ -97,24 +112,41 @@ const ReportLate = () => {
               />
             </div>
 
-            {/* Dropdown untuk memilih guru */}
+            {/* Input untuk pencarian nama guru */}
             <div className="mb-6">
               <label htmlFor="teacher" className="block text-gray-600">
                 Pilih Guru:
               </label>
-              <select
-                id="teacher"
-                value={selectedTeacherName}
-                onChange={handleTeacherChange}
-                className="p-2 rounded-md border"
-              >
-                <option value="">-- Pilih Guru --</option>
-                {users.map((user) => (
-                  <option key={user.id} value={user.name}>
-                    {user.name}
-                  </option>
-                ))}
-              </select>
+
+              {/* Pencarian dengan input */}
+              <input
+                type="text"
+                placeholder="Cari Guru..."
+                value={searchTeacher}
+                onChange={handleSearchTeacherChange}
+                onFocus={() => setIsDropdownOpen(true)} // Buka dropdown saat fokus
+                onBlur={() => setTimeout(() => setIsDropdownOpen(false), 100)} // Tutup dropdown setelah input kehilangan fokus
+                className="p-2 mb-2 rounded-md border w-full"
+              />
+
+              {/* Custom Dropdown */}
+              {isDropdownOpen && (
+                <div className="absolute border bg-white w-full max-h-60 overflow-y-auto rounded-md shadow-lg mt-1 z-10">
+                  {filteredUsers.length > 0 ? (
+                    filteredUsers.map((user) => (
+                      <div
+                        key={user.id}
+                        onClick={() => handleTeacherChange(user.name)}
+                        className="p-2 cursor-pointer hover:bg-gray-200"
+                      >
+                        {user.name}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-2 text-gray-500">Tidak ada guru ditemukan</div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Tombol Export dan Print - Ditempatkan di atas tabel */}
@@ -124,7 +156,7 @@ const ReportLate = () => {
                 columns={[
                   { header: "No", field: "No" },
                   { header: "Nama", field: "Nama" },
-                  { header: "RFID", field: "RFID" },
+                  { header: "NIP", field: "NIP" },
                   { header: "Kelamin", field: "Kelamin" },
                   { header: "Mata Pelajaran", field: "Mata Pelajaran" },
                   { header: "Waktu Absensi", field: "Waktu Absensi" },
@@ -155,7 +187,7 @@ const ReportLate = () => {
                     <tr className="bg-gray-300 text-gray-700">
                       <th className="py-3 px-4 text-left">No</th>
                       <th className="py-3 px-4 text-left">Nama</th>
-                      <th className="py-3 px-4 text-left">RFID</th>
+                      <th className="py-3 px-4 text-left">NIP</th>
                       <th className="py-3 px-4 text-left">Kelamin</th>
                       <th className="py-3 px-4 text-left">Mata Pelajaran</th>
                       <th className="py-3 px-4 text-left">Waktu Absensi</th>

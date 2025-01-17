@@ -6,17 +6,22 @@ import ExportButton from "./Report/Excel"; // Import ExportButton
 import PrintButton from "./Report/PrintButton"; // Import PrintButton
 import { getScansByTeacherDateRange, getUsers } from "./api"; // Import API untuk data
 import { formatDateTime } from "./utilis/formatDateTime"; // Untuk format tanggal
+import TitleBox from "./Title";
 
 const ReportTeacher = () => {
   // State untuk inputan
   const [teacherId, setTeacherId] = useState(""); // ID Guru
-  const [startDate, setStartDate] = useState("2025-01-01"); // Tanggal mulai
-  const [endDate, setEndDate] = useState("2025-01-10"); // Tanggal selesai
+  const [startDate, setStartDate] = useState(""); // Tanggal mulai
+  const [endDate, setEndDate] = useState(""); // Tanggal selesai
   const [teachers, setTeachers] = useState([]); // Data guru
   const [reportData, setReportData] = useState([]); // Data laporan
   const [loading, setLoading] = useState(true); // Status loading
   const [errorMessage, setErrorMessage] = useState(""); // Pesan error
 
+  const [searchTeacher, setSearchTeacher] = useState(""); // Pencarian guru
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Status dropdown
+  const [filteredTeachers, setFilteredTeachers] = useState([]); // Filter guru berdasarkan pencarian
+  
   // Ambil data guru dari API
   useEffect(() => {
     const fetchTeachers = async () => {
@@ -30,13 +35,17 @@ const ReportTeacher = () => {
     fetchTeachers();
   }, []);
 
-  // Fetch laporan berdasarkan ID guru dan rentang tanggal
+  // Ambil data laporan berdasarkan ID guru dan rentang tanggal
   useEffect(() => {
     const fetchReport = async () => {
       setLoading(true);
       try {
         if (teacherId && startDate && endDate) {
-          const data = await getScansByTeacherDateRange(teacherId, startDate, endDate);
+          const data = await getScansByTeacherDateRange(
+            teacherId,
+            startDate,
+            endDate
+          );
           setReportData(data || []);
         } else {
           setReportData([]);
@@ -56,10 +65,31 @@ const ReportTeacher = () => {
   const filteredData = reportData.filter((item) => {
     return (
       item.Nama.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item["Mata Pelajaran"].toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item["Mata Pelajaran"]
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
       item["Jenis Absensi"].toLowerCase().includes(searchQuery.toLowerCase())
     );
   });
+
+  // Pencarian untuk guru
+  useEffect(() => {
+    const filtered = teachers.filter((teacher) =>
+      teacher.name.toLowerCase().includes(searchTeacher.toLowerCase())
+    );
+    setFilteredTeachers(filtered);
+  }, [searchTeacher, teachers]);
+
+  const handleSearchTeacherChange = (event) => {
+    setSearchTeacher(event.target.value);
+    setIsDropdownOpen(true); // Buka dropdown saat mengetik
+  };
+
+  const handleSelectTeacher = (teacher) => {
+    setTeacherId(teacher.id);
+    setSearchTeacher(teacher.name);
+    setIsDropdownOpen(false); // Tutup dropdown setelah memilih
+  };
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
@@ -73,22 +103,40 @@ const ReportTeacher = () => {
         <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden bg-gray-200">
           <Header />
           <main className="p-6 space-y-6">
+            <TitleBox title="Laporan Guru" />
             <div className="flex gap-4 mb-6">
-              <div className="flex-1">
+              <div className="flex-1 relative">
                 <label> ID Guru: </label>
-                <select
-                  value={teacherId}
-                  onChange={(e) => setTeacherId(e.target.value)}
+                {/* Searchable Dropdown untuk Guru */}
+                <input
+                  type="text"
+                  placeholder="Cari Guru..."
+                  value={searchTeacher}
+                  onChange={handleSearchTeacherChange}
+                  onFocus={() => setIsDropdownOpen(true)} // Buka dropdown saat focus
+                  onBlur={() => setTimeout(() => setIsDropdownOpen(false), 100)} // Tutup dropdown saat blur
                   className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                >
-                  <option value="">Pilih Guru</option>
-                  {teachers.map((teacher) => (
-                    <option key={teacher.id} value={teacher.id}>
-                      {teacher.name}
-                    </option>
-                  ))}
-                </select>
+                />
+                {/* Dropdown Filter Guru */}
+                {isDropdownOpen && (
+                  <div className="absolute border w-full max-h-60 overflow-y-auto bg-white shadow-lg z-10 mt-1">
+                    {filteredTeachers.length > 0 ? (
+                      filteredTeachers.map((teacher) => (
+                        <div
+                          key={teacher.id}
+                          onClick={() => handleSelectTeacher(teacher)}
+                          className="p-3 cursor-pointer hover:bg-gray-200"
+                        >
+                          {teacher.name}
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-3 text-gray-500">Tidak ada guru ditemukan</div>
+                    )}
+                  </div>
+                )}
               </div>
+
               <div className="flex-1">
                 <label> Tanggal Mulai: </label>
                 <input
@@ -109,7 +157,7 @@ const ReportTeacher = () => {
               </div>
             </div>
 
-            {/* Search Bar */}
+            {/* Search Bar untuk Filter Data */}
             <div className="mb-6">
               <input
                 type="text"
@@ -122,8 +170,8 @@ const ReportTeacher = () => {
 
             {/* Tombol Export dan Print */}
             <div className="mb-6 flex gap-4">
-              <ExportButton 
-                data={filteredData} 
+              <ExportButton
+                data={filteredData}
                 columns={[
                   { header: "No", field: "No" },
                   { header: "Nama", field: "Nama" },
@@ -143,7 +191,9 @@ const ReportTeacher = () => {
               </div>
             ) : filteredData.length === 0 ? (
               <div className="text-center py-10">
-                <h2 className="text-xl font-bold text-gray-600">Tidak ada laporan untuk periode ini</h2>
+                <h2 className="text-xl font-bold text-gray-600">
+                  Tidak ada laporan untuk periode ini
+                </h2>
               </div>
             ) : (
               // Data Table
@@ -156,6 +206,7 @@ const ReportTeacher = () => {
                     <tr className="bg-gray-600 text-white">
                       <th className="py-3 px-4 text-left">No</th>
                       <th className="py-3 px-4 text-left">Nama</th>
+                      <th className="py-3 px-4 text-left">NIP</th>
                       <th className="py-3 px-4 text-left">Mata Pelajaran</th>
                       <th className="py-3 px-4 text-left">Waktu Absensi</th>
                       <th className="py-3 px-4 text-left">Jenis Absensi</th>
@@ -166,11 +217,16 @@ const ReportTeacher = () => {
                       <tr key={index} className="border-b hover:bg-gray-50">
                         <td className="py-3 px-4 text-sm">{index + 1}</td>
                         <td className="py-3 px-4 text-sm">{item.Nama}</td>
-                        <td className="py-3 px-4 text-sm">{item["Mata Pelajaran"]}</td>
+                        <td className="py-3 px-4 text-sm">{item.nip}</td>
+                        <td className="py-3 px-4 text-sm">
+                          {item["Mata Pelajaran"]}
+                        </td>
                         <td className="py-3 px-4 text-sm">
                           {formatDateTime(item["Waktu Absensi"])}
                         </td>
-                        <td className="py-3 px-4 text-sm">{item["Jenis Absensi"]}</td>
+                        <td className="py-3 px-4 text-sm">
+                          {item["Jenis Absensi"]}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

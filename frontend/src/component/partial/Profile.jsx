@@ -12,7 +12,7 @@ const Profile = () => {
   }, []);
 
   return (
-    <div className="bg-gray-200 flex items-center justify-start p-1 rounded shadow-md w-full max-w-sm mx-auto">
+    <div className="bg-gray-100 flex items-center justify-start p-1 rounded pr-5 pl-5 shadow-md w-full max-w-sm mx-auto">
       {/* Gambar profil dinamis berdasarkan role */}
       <img
         src={

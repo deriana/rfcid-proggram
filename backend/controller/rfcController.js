@@ -53,7 +53,7 @@ const loginUser = async (req, res) => {
       let scanType = "masuk"; // Default type
 
       // **Validasi scan di atas jam 8 - Terlambat**
-      if (currentTime > "08:00:00" && currentTime <= "12:00:00") {
+      if (currentTime > "07:00:00" && currentTime <= "12:00:00") {
         scanType = "terlambat"; // Terlambat jika di atas jam 08:00 pagi
       }
 

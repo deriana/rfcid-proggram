@@ -54,14 +54,15 @@ const LoginRfcid = () => {
           if (response.error) {
             setLoginError(response.error); // Tampilkan pesan error ke pengguna
           } else {
-            // Reload the page after 2 seconds (successful scan)
             setTimeout(() => {
               window.location.reload();
             }, 2000);
           }
         } catch (error) {
           setLoginError("Login failed! Please try again.");
-          console.log(error)
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
         } finally {
           setLoading(false);
         }
@@ -101,7 +102,9 @@ const LoginRfcid = () => {
                 {loginResponse && !loginError && (
                   <div className="text-center space-y-6 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
                     <h2 className="text-2xl text-green-600 font-bold">
-                      {scanType === "keluar" ? "Logout Successful" : "Login Successful"}
+                      {scanType === "keluar"
+                        ? "Logout Successful"
+                        : "Login Successful"}
                     </h2>
                     <p className="text-lg text-gray-700 dark:text-gray-200">
                       Welcome,{" "}

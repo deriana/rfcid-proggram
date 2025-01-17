@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Preloader from "./partial/Preloader";
 import { loginAdmin } from "./api";
-import Swal from "sweetalert2"; // Impor SweetAlert2
+import Swal from "sweetalert2"; // Import SweetAlert2
 
 const Login = () => {
   const [usernameOrEmail, setUsernameOrEmail] = useState(""); // Input untuk username atau email
@@ -47,8 +47,9 @@ const Login = () => {
 
       setTimeout(() => navigate("/"), 1000);
     } catch (error) {
-      const errorMsg = error.response?.data?.message || "Terjadi kesalahan saat login.";
-      
+      const errorMsg =
+        error.response?.data?.message || "Terjadi kesalahan saat login.";
+
       // Tampilkan SweetAlert jika login gagal
       Swal.fire({
         title: "Login Gagal!",
@@ -56,7 +57,7 @@ const Login = () => {
         icon: "error",
         confirmButtonText: "OK",
       });
-      
+
       setMessage({ type: "error", text: errorMsg });
     } finally {
       setLoading(false);
@@ -64,15 +65,14 @@ const Login = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
-      {loading && <Preloader />}
-
-      <div className="flex flex-1 items-center justify-center">
-        <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg p-8 shadow-lg">
-          <h2 className="text-2xl font-bold text-black dark:text-white text-center mb-6">
-            Sign In to ZieAbsensi
+    <div className="flex min-h-screen bg-gray-100 p-12">
+      <div className="w-1/2 flex flex-col items-center justify-center bg-white p-8 rounded-lg shadow-lg">
+        <div className="w-90">
+          <h2 className="text-3xl font-bold text-left text-gray-800 mb-6">
+            Present Zie Login
           </h2>
 
+          {/* Display error or success message */}
           {message && (
             <div
               className={`text-sm text-center mb-4 ${
@@ -83,6 +83,7 @@ const Login = () => {
             </div>
           )}
 
+          {/* Updated Form */}
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label
@@ -127,6 +128,13 @@ const Login = () => {
             </button>
           </form>
         </div>
+      </div>
+      <div className="w-1/2 flex justify-center items-center">
+        <img
+          src="/bg.png"
+          alt="Person holding notebook"
+          className="w-full h-full object-cover"
+        />
       </div>
     </div>
   );

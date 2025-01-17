@@ -41,8 +41,15 @@ const Sidebar = ({ isVisible }) => {
         isVisible ? "translate-x-0" : "-translate-x-full"
       }`}
     >
-      <div className="flex items-center justify-center gap-2 px-4 py-5 lg:py-6">
-        <h1 className="text-white text-3xl font-semibold">Absensi Guru</h1>
+      <div className="flex flex-row items-center justify-center gap-3 px-4 py-4 lg:py-5">
+        <img
+          src="/logo.png"
+          alt="logo smakzie"
+          className="h-10 w-auto lg:h-12"
+        />
+        <h1 className="text-white text-xl lg:text-2xl font-semibold">
+          Absensi Guru
+        </h1>
       </div>
 
       <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
@@ -59,15 +66,6 @@ const Sidebar = ({ isVisible }) => {
                 label="Dashboard"
                 selected={selected === "Dashboard"}
                 onClick={() => handleMenuItemClick("Dashboard")}
-              />
-
-              {/* Semua role dapat melihat Guru */}
-              <NavItem
-                href="/users"
-                icon={faUsers}
-                label="Guru"
-                selected={selected === "Guru"}
-                onClick={() => handleMenuItemClick("Guru")}
               />
 
               {/* Semua role dapat melihat Scan Kartu */}
@@ -154,6 +152,16 @@ const Sidebar = ({ isVisible }) => {
                     </ul>
                   )}
                 </li>
+              )}
+
+              {role === "admin" && (
+                <NavItem
+                  href="/users"
+                  icon={faUsers}
+                  label="Guru"
+                  selected={selected === "Guru"}
+                  onClick={() => handleMenuItemClick("Guru")}
+                />
               )}
 
               {/* Hanya admin yang dapat melihat menu Admin */}
