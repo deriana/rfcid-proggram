@@ -15,12 +15,12 @@ import {
 
 import { Line } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
+import Footer from "./partial/Footer";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 function Dashboard() {
   const [cardData, setCardData] = useState([]);
-
   const [fullHadirValue, setFullHadirValue] = useState(0);
   const [fullTerlambatValue, setFullTerlambatValue] = useState(0);
 
@@ -71,8 +71,8 @@ function Dashboard() {
         backgroundColor: "rgba(52, 211, 153, 0.4)",
         borderColor: "#34D399",
         borderWidth: 3,
-        tension: 0.7, 
-        cubicInterpolationMode: 'monotone', 
+        tension: 0.7,
+        cubicInterpolationMode: 'monotone',
       },
       {
         label: "Full Terlambat",
@@ -81,12 +81,11 @@ function Dashboard() {
         backgroundColor: "rgba(250, 191, 36, 0.4)",
         borderColor: "#FBBF24",
         borderWidth: 3,
-        tension: 0.7, 
+        tension: 0.7,
         cubicInterpolationMode: 'monotone',
       },
     ],
   };
-  
 
   const chartOptions = {
     responsive: true,
@@ -112,9 +111,9 @@ function Dashboard() {
         <Sidebar />
         <div className="relative flex flex-1 flex-col overflow-y-auto bg-white">
           <Header />
-          <main className="p-6 md:p-8 2xl:p-10 mx-auto max-w-screen-2xl">
+          <main className="p-0 md:p-0 2xl:p-0 mx-auto max-w-screen-2xl">
             <TitleBox title="Dashboard" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 p-6">
               {cardData.map((data, index) => (
                 <Card
                   key={index}
@@ -127,11 +126,12 @@ function Dashboard() {
               ))}
             </div>
             <div className="p-6">
-              <div className="h-96">
+              <div className="h-72 sm:h-96">
                 <Line data={chartData} options={chartOptions} />
               </div>
             </div>
           </main>
+          <Footer />
         </div>
       </div>
     </div>

@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBars } from "@fortawesome/free-solid-svg-icons";
 import Profile from "./Profile";
 import Sidebar from "./Sidebar";
-import swal from 'sweetalert2'; // Import SweetAlert2
-import { useNavigate } from 'react-router-dom'; // Untuk navigasi
+import swal from "sweetalert2"; // Import SweetAlert2
+import { useNavigate } from "react-router-dom"; // Untuk navigasi
 
 const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false); // Dropdown for profile
@@ -20,7 +20,7 @@ const Header = () => {
   };
 
   const toggleSidebar = () => {
-    setSidebarVisible(prev => !prev); // Toggle sidebar visibility
+    setSidebarVisible((prev) => !prev); // Toggle sidebar visibility
   };
 
   // Load admin username from localStorage
@@ -36,17 +36,17 @@ const Header = () => {
     // SweetAlert2 Confirmation Dialog
     swal
       .fire({
-        title: 'Are you sure?',
-        text: 'You are about to log out!',
-        icon: 'warning',
+        title: "Are you sure?",
+        text: "You are about to log out!",
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonText: 'Yes, log me out!',
-        cancelButtonText: 'Cancel',
+        confirmButtonText: "Yes, log me out!",
+        cancelButtonText: "Cancel",
         reverseButtons: true, // Make sure the cancel button comes first
       })
       .then((result) => {
         if (result.isConfirmed) {
-          navigate("/logout"); 
+          navigate("/logout");
         }
       });
   };
@@ -55,25 +55,34 @@ const Header = () => {
   useEffect(() => {
     const handleClickOutside = (event) => {
       // Tutup dropdown jika klik di luar elemen terkait
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target) &&
-          !headerRef.current.contains(event.target) &&
-          (!sidebarRef.current || !sidebarRef.current.contains(event.target))) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) &&
+        !headerRef.current.contains(event.target) &&
+        (!sidebarRef.current || !sidebarRef.current.contains(event.target))
+      ) {
         setDropdownOpen(false);
         setSidebarVisible(false); // Tutup sidebar juga jika ingin
       }
     };
 
-    document.addEventListener('click', handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
     return () => {
-      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
     };
   }, []);
   return (
-    <header ref={headerRef} className="sticky top-0 z-999 w-full bg-white drop-shadow-1 transition-all duration-300">
+    <header
+      ref={headerRef}
+      className="sticky top-0 z-999 w-full bg-white drop-shadow-1 transition-all duration-300"
+    >
       <div className="flex items-center justify-between px-4 py-4 shadow-2 md:px-6 2xl:px-11">
-        
         {/* Apply conditional margin only to the flex section with Hamburger and title */}
-        <div className={`flex items-center ${sidebarVisible ? 'ml-64' : ''}`}>
+        <div
+          className={`flex items-center ${
+            sidebarVisible && window.innerWidth >= 1024 ? "ml-64" : ""
+          }`}
+        >
           <button
             className="mr-4 text-2xl text-gray-600"
             onClick={toggleSidebar} // Add click handler to toggle sidebar

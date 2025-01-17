@@ -1,60 +1,101 @@
-import React, { useState, useEffect } from "react";
-import Preloader from "./partial/Preloader"; // Import Preloader untuk loading
+import React, { useState, useEffect, useRef } from "react";
+import Preloader from "./partial/Preloader";
 import Sidebar from "./partial/Sidebar";
 import Header from "./partial/Header";
-import { getLateScansTeacher, getUsers } from "./api"; // Impor API untuk mendapatkan data terlambat
+import { getLateScansTeacher, getUsers } from "./api";
 import ExportButton from "./Report/Excel";
 import PrintButton from "./Report/PrintButton";
-import { formatDateTime } from "./utilis/formatDateTime"; // Untuk format tanggal
+import { formatDateTime } from "./utilis/formatDateTime";
 import TitleBox from "./Title";
 
 const ReportLate = () => {
-  // State untuk menyimpan laporan, rentang tanggal, dan loading state
+  // State untuk laporan, rentang tanggal, loading state, dan data pengguna
   const [reportData, setReportData] = useState([]);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [loading, setLoading] = useState(false);
-  const [users, setUsers] = useState([]); // State untuk user data
-  const [selectedTeacherName, setSelectedTeacherName] = useState(""); // State untuk nama guru yang dipilih
-  const [searchTeacher, setSearchTeacher] = useState(""); // State untuk input pencarian guru
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Menyimpan apakah dropdown terbuka atau tidak
+  const [users, setUsers] = useState([]);
+  const [selectedTeacherName, setSelectedTeacherName] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showUserList, setShowUserList] = useState(false); // State untuk mengontrol tampilkan daftar pengguna
+  const [noUsersFound, setNoUsersFound] = useState(false); // Kondisi ketika tidak ada pengguna
+
+  const inputRef = useRef(null); // Ref untuk input pencarian
+  const dropdownRef = useRef(null); // Ref untuk dropdown
 
   const handleStartDateChange = (event) => {
     setStartDate(event.target.value);
   };
 
-  // Fungsi untuk menangani perubahan pada input tanggal akhir
   const handleEndDateChange = (event) => {
     setEndDate(event.target.value);
   };
 
-  // Fungsi untuk menangani perubahan pada input dropdown pemilihan user
-  const handleTeacherChange = (teacherName) => {
-    setSelectedTeacherName(teacherName);
-    setIsDropdownOpen(false); // Tutup dropdown setelah memilih
+  const handleSearchChange = (event) => {
+    const value = event.target.value;
+    setSearchTerm(value);
+    setShowUserList(true);
+
+    // Jika input kosong, menampilkan 10 pengguna pertama sebagai saran
+    if (value === "") {
+      setNoUsersFound(false);
+    } else {
+      setNoUsersFound(users.filter(user => user.name.toLowerCase().includes(value.toLowerCase())).length === 0);
+    }
   };
 
-  // Fungsi untuk menangani pencarian guru
-  const handleSearchTeacherChange = (event) => {
-    setSearchTeacher(event.target.value);
+  const handleTeacherSelect = (name) => {
+    setSelectedTeacherName(name);
+    setShowUserList(false); // Menyembunyikan daftar setelah memilih nama
+    setSearchTerm(name); // Menambahkan nama yang dipilih ke input
   };
 
-  // Fungsi untuk menangani pengambilan data laporan berdasarkan rentang tanggal
+  // Menangani tekan enter pada input
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      if (filteredTeachers.length > 0) {
+        handleTeacherSelect(filteredTeachers[0].name);
+      }
+    }
+  };
+
+  // Filter daftar guru sesuai dengan pencarian
+  const filteredTeachers = users.filter((user) =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase())
+  ).slice(0, 10); // Batasi hasil filter hingga 10 guru
+
+  // Mengambil data laporan berdasarkan rentang tanggal
   const fetchReportData = async () => {
     if (!startDate || !endDate) {
       alert("Harap pilih tanggal mulai dan tanggal akhir.");
       return;
     }
-
     setLoading(true);
     const data = await getLateScansTeacher(startDate, endDate);
     if (data) {
       setReportData(data);
     } else {
-      setReportData([]); // Reset jika tidak ada data
+      setReportData([]);
     }
     setLoading(false);
   };
+
+  // Effect untuk menutup dropdown jika klik di luar kotak input dan dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target) && inputRef.current && !inputRef.current.contains(event.target)) {
+        setShowUserList(false); // Tutup dropdown jika klik di luar elemen
+      }
+    };
+
+    // Menambahkan event listener ke document
+    document.addEventListener("click", handleClickOutside);
+
+    // Membersihkan event listener saat komponen unmount
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchUsersData = async () => {
@@ -65,7 +106,6 @@ const ReportLate = () => {
         console.error("Error fetching users", error);
       }
     };
-
     fetchUsersData();
   }, []);
 
@@ -75,14 +115,9 @@ const ReportLate = () => {
     }
   }, [startDate, endDate]);
 
-  // Filter reportData berdasarkan nama user yang dipilih dari dropdown
+  // Filter laporan berdasarkan guru yang dipilih
   const filteredReports = reportData.filter((item) =>
     selectedTeacherName ? item.Nama === selectedTeacherName : true
-  );
-
-  // Filter daftar guru berdasarkan input pencarian
-  const filteredUsers = users.filter((user) =>
-    user.name.toLowerCase().includes(searchTeacher.toLowerCase())
   );
 
   return (
@@ -112,44 +147,50 @@ const ReportLate = () => {
               />
             </div>
 
-            {/* Input untuk pencarian nama guru */}
-            <div className="mb-6">
+            {/* Input dengan daftar pengguna */}
+            <div className="mb-6 relative">
               <label htmlFor="teacher" className="block text-gray-600">
                 Pilih Guru:
               </label>
 
-              {/* Pencarian dengan input */}
+              {/* Input pencarian yang langsung tampilkan daftar */}
               <input
+                ref={inputRef}
                 type="text"
-                placeholder="Cari Guru..."
-                value={searchTeacher}
-                onChange={handleSearchTeacherChange}
-                onFocus={() => setIsDropdownOpen(true)} // Buka dropdown saat fokus
-                onBlur={() => setTimeout(() => setIsDropdownOpen(false), 100)} // Tutup dropdown setelah input kehilangan fokus
-                className="p-2 mb-2 rounded-md border w-full"
+                placeholder="Cari nama guru..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                onKeyDown={handleKeyDown} // Menghandle enter key
+                className="p-2 mb-2 rounded-md border border-gray-300 w-full"
               />
 
-              {/* Custom Dropdown */}
-              {isDropdownOpen && (
-                <div className="absolute border bg-white w-full max-h-60 overflow-y-auto rounded-md shadow-lg mt-1 z-10">
-                  {filteredUsers.length > 0 ? (
-                    filteredUsers.map((user) => (
+              {/* Daftar pengguna yang muncul setelah mengetik di input */}
+              {showUserList && (
+                <div
+                  ref={dropdownRef}
+                  className="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-y-auto"
+                  style={{ top: '100%', left: 0 }}
+                >
+                  {filteredTeachers.length === 0 && !noUsersFound ? (
+                    <div className="p-2 text-gray-500">Pilih guru</div>
+                  ) : noUsersFound ? (
+                    <div className="p-2 text-gray-500">Tidak ada pengguna yang cocok</div>
+                  ) : (
+                    filteredTeachers.map((user) => (
                       <div
                         key={user.id}
-                        onClick={() => handleTeacherChange(user.name)}
-                        className="p-2 cursor-pointer hover:bg-gray-200"
+                        className="p-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => handleTeacherSelect(user.name)}
                       >
                         {user.name}
                       </div>
                     ))
-                  ) : (
-                    <div className="p-2 text-gray-500">Tidak ada guru ditemukan</div>
                   )}
                 </div>
               )}
             </div>
 
-            {/* Tombol Export dan Print - Ditempatkan di atas tabel */}
+            {/* Tombol Export dan Print */}
             <div className="flex space-x-4 mt-6 mb-4">
               <ExportButton
                 data={filteredReports}
@@ -199,7 +240,7 @@ const ReportLate = () => {
                       <tr key={item.No} className="border-b hover:bg-gray-50">
                         <td className="py-2 px-4 text-sm">{index + 1}</td>
                         <td className="py-2 px-4 text-sm">{item.Nama}</td>
-                        <td className="py-2 px-4 text-sm">{item.RFID}</td>
+                        <td className="py-2 px-4 text-sm">{item.nip}</td>
                         <td className="py-2 px-4 text-sm">{item.Kelamin}</td>
                         <td className="py-2 px-4 text-sm">
                           {item["Mata Pelajaran"]}

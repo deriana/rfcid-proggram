@@ -24,7 +24,7 @@ const PrintButton = () => {
       return; // Hentikan proses pencetakan jika dibatalkan
     }
 
-    const printWindow = window.open("", "_self"); // Menggunakan jendela yang ada saat ini
+    const printWindow = window.open("", "_blank"); // Menggunakan jendela baru (_blank)
 
     // Menulis HTML yang akan dicetak
     printWindow.document.write("<html><head><title>Cetak Laporan</title>");

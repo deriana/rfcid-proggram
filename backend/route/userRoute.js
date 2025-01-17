@@ -6,7 +6,7 @@ const upload = require("../middleware/multerXlsx");
 
 router.get("/user", userController.getUsers);
 router.post("/user/register", userController.registerUser);
-router.delete("/user/:id", userController.deleteUser);
+router.put("/user/:id", userController.deleteUser);
 router.put("/user/:id", userController.editUser);
 router.get("/user/:id", userController.getUserByID);
 router.get("/checkabsent", userController.checkUserNotAbsent);

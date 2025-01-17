@@ -37,7 +37,7 @@ const insertUserXlsx = async (rfid, nip, name, kelamin, mapel) => {
 
 const getAllUsers = async () => {
   const connection = await connectDB();
-  const query = "SELECT * FROM users";
+  const query = "SELECT * FROM users WHERE status = 'On'";
   const [results] = await connection.execute(query);
   await connection.end();
   return results;
@@ -74,13 +74,13 @@ const editUser = async (id, name, kelamin, mapel, image) => {
 
 const deleteUser = async (id) => {
   const connection = await connectDB();
-
-  const query = "DELETE FROM users WHERE id = ?";
-  const [result] = await connection.execute(query, [id]);
+  const query = "UPDATE users SET status = ? WHERE id = ?";
+  const [result] = await connection.execute(query, ["Of", id]);
 
   await connection.end();
   return result;
 };
+
 
 const checkUserNotAbsent = async (date = null) => {
   const connection = await connectDB();
@@ -91,7 +91,7 @@ const checkUserNotAbsent = async (date = null) => {
                 FROM users
                 LEFT JOIN scans ON users.id = scans.userID
                 AND DATE(scans.timestamp) = ?
-                WHERE scans.userID IS NULL;
+                WHERE scans.userID IS NULL AND status = 'On';
                 `;
 
   const [result] = await connection.execute(query, [date]);

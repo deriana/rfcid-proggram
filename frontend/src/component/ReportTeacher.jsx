@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Preloader from "./partial/Preloader"; // Import Preloader untuk loading
 import Sidebar from "./partial/Sidebar";
 import Header from "./partial/Header";
@@ -21,7 +21,10 @@ const ReportTeacher = () => {
   const [searchTeacher, setSearchTeacher] = useState(""); // Pencarian guru
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Status dropdown
   const [filteredTeachers, setFilteredTeachers] = useState([]); // Filter guru berdasarkan pencarian
-  
+
+  const inputRef = useRef(null); // Ref untuk input
+  const dropdownRef = useRef(null); // Ref untuk dropdown
+
   // Ambil data guru dari API
   useEffect(() => {
     const fetchTeachers = async () => {
@@ -95,6 +98,36 @@ const ReportTeacher = () => {
     setSearchQuery(event.target.value);
   };
 
+  // Menangani klik di luar dropdown untuk menutupnya
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) &&
+        inputRef.current &&
+        !inputRef.current.contains(event.target)
+      ) {
+        setIsDropdownOpen(false); // Menutup dropdown jika klik di luar
+      }
+    };
+
+    // Menambahkan event listener saat komponen terpasang
+    document.addEventListener("click", handleClickOutside);
+
+    // Membersihkan event listener saat komponen unmount
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+
+  // Menangani event keydown untuk memilih item pertama saat tekan "Enter"
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter" && filteredTeachers.length > 0) {
+      // Jika ada hasil pencarian dan menekan "Enter", pilih item pertama
+      handleSelectTeacher(filteredTeachers[0]);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Preloader />
@@ -109,17 +142,22 @@ const ReportTeacher = () => {
                 <label> ID Guru: </label>
                 {/* Searchable Dropdown untuk Guru */}
                 <input
+                  ref={inputRef}
                   type="text"
                   placeholder="Cari Guru..."
                   value={searchTeacher}
                   onChange={handleSearchTeacherChange}
                   onFocus={() => setIsDropdownOpen(true)} // Buka dropdown saat focus
                   onBlur={() => setTimeout(() => setIsDropdownOpen(false), 100)} // Tutup dropdown saat blur
+                  onKeyDown={handleKeyDown} // Menambahkan handler keydown
                   className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
                 {/* Dropdown Filter Guru */}
                 {isDropdownOpen && (
-                  <div className="absolute border w-full max-h-60 overflow-y-auto bg-white shadow-lg z-10 mt-1">
+                  <div
+                    ref={dropdownRef}
+                    className="absolute border w-full max-h-60 overflow-y-auto bg-white shadow-lg z-10 mt-1"
+                  >
                     {filteredTeachers.length > 0 ? (
                       filteredTeachers.map((teacher) => (
                         <div

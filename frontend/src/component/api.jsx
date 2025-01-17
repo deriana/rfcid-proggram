@@ -109,7 +109,7 @@ export const editUser = async (id, updatedUser, imageFile) => {
 // Fungsi untuk menghapus user
 export const deleteUser = async (id) => {
   try {
-    const response = await axios.delete(`${API_BASE_URL}/user/${id}`);
+    const response = await axios.put(`${API_BASE_URL}/user/${id}`);
     return response.data;
   } catch (error) {
     console.error("Error deleting user:", error.response.data || error.message);

@@ -65,10 +65,14 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100 p-12">
-      <div className="w-1/2 flex flex-col items-center justify-center bg-white p-8 rounded-lg shadow-lg">
-        <div className="w-90">
-          <h2 className="text-3xl font-bold text-left text-gray-800 mb-6">
+    <div className="flex min-h-screen bg-gray-100 p-4 md:p-12">
+      <div className="w-full md:w-1/2 flex flex-col items-center justify-between bg-white p-8 rounded-lg shadow-lg">
+        <div className="flex w-full justify-start">
+          <h1 className="text-1xl font-bold text-black">SMKN 1 CIANJUR</h1>
+        </div>
+
+        <div className="w-full">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-left text-gray-800 mb-6">
             Present Zie Login
           </h2>
 
@@ -128,11 +132,22 @@ const Login = () => {
             </button>
           </form>
         </div>
+
+        <div className="flex w-full justify-end">
+          <img src="/logo.png" alt="Logo" className="w-15 h-15 mr-4" />
+          <img src="/logo-tefa.png" alt="Tefa Logo" className="w-15 h-15" />
+        </div>
+
+        {/* <div className="flex w-full justify-end mt-auto">
+          <img src="/logo.png" alt="Logo" className="w-15 h-15 mr-4" />
+          <img src="/logo-tefa.png" alt="Tefa Logo" className="w-15 h-15" />
+        </div> */}
       </div>
-      <div className="w-1/2 flex justify-center items-center">
+
+      <div className="hidden md:flex w-1/2 justify-center items-center">
         <img
-          src="/bg.png"
-          alt="Person holding notebook"
+          src="/bg.jpeg"
+          alt="Smakzie building"
           className="w-full h-full object-cover"
         />
       </div>

@@ -70,6 +70,8 @@ function Users() {
               icon: "text-red-500",
             },
           });
+
+          console.error("Error detail:", error);
         }
       }
     });

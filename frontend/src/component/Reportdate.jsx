@@ -58,8 +58,7 @@ const ReportDate = () => {
   // Fungsi untuk melakukan pencarian di data laporan
   const filteredReports = reportData.filter(
     (item) =>
-      item.Nama.toLowerCase().includes(searchTerm) ||
-      item.RFID.includes(searchTerm)
+      item.Nama.toLowerCase().includes(searchTerm)
   );
 
   return (
