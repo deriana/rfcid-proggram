@@ -1,13 +1,24 @@
 const connectDB = require("../config/db");
 
-const insertUser = async (rfid, name, kelamin, mapel, image, nip) => {
+const insertUser = async (
+  rfid,
+  name,
+  username,
+  password,
+  kelamin,
+  mapel,
+  image,
+  nip
+) => {
   const connection = await connectDB();
 
   const query =
-    "INSERT INTO users (rfid, name, kelamin, mapel, image, nip) VALUES (?, ?, ?, ?, ?, ?)";
+    "INSERT INTO users (rfid, name, username, password, kelamin, mapel, image, nip) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
   const [result] = await connection.execute(query, [
     rfid,
     name,
+    username,
+    password,
     kelamin,
     mapel,
     image,
@@ -81,7 +92,6 @@ const deleteUser = async (id) => {
   return result;
 };
 
-
 const checkUserNotAbsent = async (date = null) => {
   const connection = await connectDB();
 
@@ -99,6 +109,26 @@ const checkUserNotAbsent = async (date = null) => {
   return result;
 };
 
+const checkUsername = async (id) => {
+  const connection = await connectDB();
+
+  const query = "SELECT username FROM users WHERE id = ?";
+
+  const [result] = await connection.execute(query, [id]);
+  await connection.end();
+  return result;
+};
+
+const changePassword = async (password, id) => {
+  const connection = await connectDB();
+
+  const query = "UPDATE users SET password = ? WHERE id = ?";
+
+  const [result] = await connection.execute(query, [password, id]);
+  await connection.end()
+  return result
+};
+
 module.exports = {
   insertUser,
   getAllUsers,
@@ -107,4 +137,6 @@ module.exports = {
   deleteUser,
   insertUserXlsx,
   checkUserNotAbsent,
+  checkUsername,
+  changePassword
 };

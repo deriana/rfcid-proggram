@@ -60,9 +60,9 @@ const LoginRfcid = () => {
           }
         } catch (error) {
           setLoginError("Login failed! Please try again.");
-          setTimeout(() => {
-            window.location.reload();
-          }, 2000);
+          // setTimeout(() => {
+          //   window.location.reload();
+          // }, 2000);
         } finally {
           setLoading(false);
         }

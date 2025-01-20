@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 class LoadingWidget extends StatelessWidget {
   const LoadingWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return CircularProgressIndicator(
-      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFF26A37)), // Menggunakan warna tombol
-    );
+    return Lottie.asset('../assets/lottie/loading.json',
+        width: 100, height: 100);
   }
 }

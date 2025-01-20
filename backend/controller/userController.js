@@ -1,9 +1,11 @@
 const userModel = require("../model/userModel");
 const { successResponse, errorResponse } = require("../providers/response");
 const upload = require("../middleware/multer");
-const XLSX = require("xlsx"); 
-const path = require('path');
-const fs = require('fs');
+const XLSX = require("xlsx");
+const path = require("path");
+const fs = require("fs");
+const bcrypt = require("bcrypt");
+const saltRounds = 10; // Jumlah salt untuk bcrypt hashing
 
 const registerUser = (req, res) => {
   // Proses upload menggunakan multer
@@ -33,10 +35,22 @@ const registerUser = (req, res) => {
           .json({ message: "RFID sudah terdaftar, coba ID yang lain." });
       }
 
+      // Ambil dua kata pertama dari name dan gabungkan tanpa spasi untuk username
+      const nameParts = name.split(" ");
+      const username = nameParts.slice(0, 2).join("").toLowerCase(); // Username = 2 kata pertama tanpa spasi dan lowercase
+
+      // Password default adalah username + "123*"
+      const rawPassword = username + "123*"; // Password format default
+
+      // Hash password menggunakan bcrypt
+      const hashedPassword = await bcrypt.hash(rawPassword, saltRounds);
+
       // Jika RFID belum terdaftar, simpan data pengguna baru
       const result = await userModel.insertUser(
         rfid,
         name,
+        username,
+        hashedPassword, // Menggunakan hashed password
         kelamin,
         mapel,
         image,
@@ -111,6 +125,26 @@ const getUserByID = async (req, res) => {
   }
 };
 
+const getUsername = async (req, res) => {
+  const { id } = req.params;
+
+  if (!id) {
+    return res.status(400).json({ message: "Id tidak boleh kosong" });
+  }
+
+  try {
+    const user = await userModel.checkUsername(id);
+    if (user.length === 0) {
+      return res.status(404).json({ message: "User tidak ditemukan" });
+    }
+
+    return res.status(200).json({ message: "User ditemukan", user });
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 const editUser = (req, res) => {
   const { id } = req.params;
 
@@ -160,6 +194,40 @@ const editUser = (req, res) => {
       return res.status(500).json({ message: error.message });
     }
   });
+};
+
+const editPassword = async (req, res) => {
+  const { id } = req.params;
+  const { password } = req.body;
+
+  if (!id) {
+    return res.status(400).json({ message: "ID tidak boleh kosong" });
+  }
+
+  if (!password) {
+    return res.status(400).json({ message: "Password tidak boleh kosong" });
+  }
+
+  try {
+    // Hash the password with bcrypt and the defined salt rounds
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Call the changePassword model function to update the password in the database
+    const result = await userModel.changePassword(hashedPassword, id);
+
+    // If no rows were affected, the user was not found or the password was not updated
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ message: "User not found or password not updated" });
+    }
+
+    // Successfully updated the password
+    return res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    console.error("Error editing user:", error);
+    return res.status(500).json({ message: error.message });
+  }
 };
 
 const deleteUser = async (req, res) => {
@@ -230,5 +298,7 @@ module.exports = {
   deleteUser,
   getUserByID,
   uploadXlsx,
-  checkUserNotAbsent
+  checkUserNotAbsent,
+  getUsername,
+  editPassword
 };

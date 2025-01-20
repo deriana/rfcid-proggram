@@ -204,6 +204,24 @@ class HomePage extends StatelessWidget {
               ),
             ),
           ),
+          Gap(20),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: GridView.builder(
+                shrinkWrap: true,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 15,
+                  mainAxisSpacing: 15,
+                ),
+                itemCount: 5,
+                itemBuilder: (context, index) {
+                  return _buildHistoryCard(index);
+                },
+              ),
+            ),
+          ),
         ],
       ),
       bottomNavigationBar: const Navbar(selectedIndex: 0),
@@ -241,6 +259,78 @@ class HomePage extends StatelessWidget {
           ),
         )
       ],
+    );
+  }
+
+  Widget _buildHistoryCard(int index) {
+    List<Map<String, dynamic>> historyItems = [
+      {
+        'title': 'Hadir',
+        'value': '80',
+        'color': Colors.green,
+        'icon': Icons.check_circle
+      },
+      {
+        'title': 'Terlambat',
+        'value': '5',
+        'color': Colors.orange,
+        'icon': Icons.access_time
+      },
+      {
+        'title': 'Ijin',
+        'value': '3',
+        'color': Colors.blue,
+        'icon': Icons.cancel_outlined
+      },
+      {'title': 'Alfa', 'value': '2', 'color': Colors.red, 'icon': Icons.block},
+      {
+        'title': 'Sakit',
+        'value': '1',
+        'color': Colors.purple,
+        'icon': Icons.health_and_safety
+      },
+    ];
+
+    return Container(
+      padding: const EdgeInsets.all(12.0),
+      decoration: BoxDecoration(
+        color: historyItems[index]['color'],
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: const Color.fromARGB(99, 0, 0, 0),
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            historyItems[index]['icon'],
+            size: 40,
+            color: Colors.white,
+          ),
+          Gap(10),
+          Text(
+            historyItems[index]['title'],
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            historyItems[index]['value'].toString(),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 30,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -41,6 +41,19 @@ export const getUsersById = async (id) => {
   }
 };
 
+export const getUsername = async (id) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/user/auth/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching user by id:",
+      error.response.data || error.message
+    );
+    throw error.response ? error.response.data : error;
+  }
+};
+
 export const registerUser = async (data) => {
   try {
     // Menyusun FormData untuk mengirimkan data termasuk image
@@ -105,6 +118,16 @@ export const editUser = async (id, updatedUser, imageFile) => {
     throw error.response ? error.response.data : error; // Return detailed error if it occurs
   }
 };
+
+export const editPassword = async (id, updatedPassword) => {
+  try {
+    const response = await axios.put(`${API_BASE_URL}/user/password/${id}`, updatedPassword)
+    return response.data
+  } catch (error) {
+    console.error("Error editing user password:", error.response.data || error.message);
+    throw error.response ? error.response.data : error;
+  }
+}
 
 // Fungsi untuk menghapus user
 export const deleteUser = async (id) => {
@@ -201,7 +224,7 @@ export const editAdmin = async (id, updatedAdmin) => {
     const response = await axios.put(
       `${API_BASE_URL}/admin/edit/${id}`,
       updatedAdmin
-    ); // Edit admin tanpa token
+    ); 
     return response.data;
   } catch (error) {
     console.error("Error editing admin:", error.response.data || error.message);
@@ -212,7 +235,7 @@ export const editAdmin = async (id, updatedAdmin) => {
 // Fungsi untuk menghapus admin
 export const deleteAdmin = async (id) => {
   try {
-    const response = await axios.delete(`${API_BASE_URL}/admin/delete/${id}`); // Menghapus admin tanpa token
+    const response = await axios.delete(`${API_BASE_URL}/admin/delete/${id}`);
     return response.data;
   } catch (error) {
     console.error(
@@ -490,5 +513,7 @@ export default {
   getDashboard,
   getDashboardHadir,
   getDashboardFullHadir,
-  getDashboardFullTerlambat
+  getDashboardFullTerlambat,
+  getUsername,
+  editPassword
 };

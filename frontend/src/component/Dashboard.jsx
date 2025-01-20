@@ -3,7 +3,12 @@ import Preloader from "./partial/Preloader";
 import Sidebar from "./partial/Sidebar";
 import Header from "./partial/Header";
 import TitleBox from "./Title";
-import { getDashboard, getDashboardHadir, getDashboardFullHadir, getDashboardFullTerlambat } from "./api";
+import {
+  getDashboard,
+  getDashboardHadir,
+  getDashboardFullHadir,
+  getDashboardFullTerlambat,
+} from "./api";
 import Card from "./Dashboard/Card";
 import {
   faCalendarCheck,
@@ -14,7 +19,16 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import { Line } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 import Footer from "./partial/Footer";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -72,7 +86,7 @@ function Dashboard() {
         borderColor: "#34D399",
         borderWidth: 3,
         tension: 0.7,
-        cubicInterpolationMode: 'monotone',
+        cubicInterpolationMode: "monotone",
       },
       {
         label: "Full Terlambat",
@@ -82,7 +96,7 @@ function Dashboard() {
         borderColor: "#FBBF24",
         borderWidth: 3,
         tension: 0.7,
-        cubicInterpolationMode: 'monotone',
+        cubicInterpolationMode: "monotone",
       },
     ],
   };
@@ -99,7 +113,7 @@ function Dashboard() {
     plugins: {
       title: {
         display: true,
-        text: "Daftar Hadi Dan Terlambat",
+        text: "Daftar Hadir dan Terlambat",
       },
     },
   };
@@ -109,11 +123,11 @@ function Dashboard() {
       <Preloader />
       <div className="flex h-screen overflow-hidden bg-gray-100">
         <Sidebar />
-        <div className="relative flex flex-1 flex-col overflow-y-auto bg-white">
+        <div className="relative flex-1 flex-col overflow-y-auto bg-white">
           <Header />
           <main className="p-0 md:p-0 2xl:p-0 mx-auto max-w-screen-2xl">
             <TitleBox title="Dashboard" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 p-4">
               {cardData.map((data, index) => (
                 <Card
                   key={index}
@@ -125,9 +139,11 @@ function Dashboard() {
                 />
               ))}
             </div>
-            <div className="p-6">
-              <div className="h-72 sm:h-96">
-                <Line data={chartData} options={chartOptions} />
+            <div className="p-4">
+              <div className="overflow-auto">
+                <div className="h-64 sm:h-72">
+                  <Line data={chartData} options={chartOptions} />
+                </div>
               </div>
             </div>
           </main>

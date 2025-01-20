@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:mobile/view/widget/change_password.dart';
 import 'package:mobile/view/widget/logout.dart';
 import 'package:mobile/view/widget/navbar.dart';
 
@@ -77,39 +78,102 @@ class ProfilePage extends StatelessWidget {
           Gap(20),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Container(
-              padding: const EdgeInsets.only(bottom: 10.0),
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: Colors.grey,
-                    width: 1.0,
-                  ),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(Icons.account_circle, size: 40, color: Colors.grey[700]),
-                  Gap(10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Users",
-                        style: TextStyle(color: Colors.grey[600]),
+            child: Column(
+              children: [
+                // Username Field
+                Container(
+                  padding: const EdgeInsets.only(bottom: 10.0),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: Colors.grey,
+                        width: 1.0,
                       ),
-                      Gap(5),
-                      Text(
-                        "Example@gmail.com",
-                        style: TextStyle(color: Colors.grey[600]),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.account_circle,
+                              size: 40, color: Colors.grey[700]),
+                          SizedBox(width: 10),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Username",
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                "ExampleUser",
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  Gap(10)
-                ],
-              ),
+                ),
+                SizedBox(height: 15),
+                // Password Field
+                Container(
+                  padding: const EdgeInsets.only(bottom: 10.0),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: Colors.grey,
+                        width: 1.0,
+                      ),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.lock_outline,
+                              size: 40, color: Colors.grey[700]),
+                          SizedBox(width: 10),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Password",
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                "*****",
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return ChangePasswordModal();
+                              });
+                        },
+                        icon: Icon(
+                          Icons.edit,
+                          color: Colors.grey,
+                        ),
+                        tooltip: "Change Password",
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
           Gap(10),

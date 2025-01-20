@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Preloader from "./partial/Preloader";
 import Sidebar from "./partial/Sidebar";
 import Header from "./partial/Header";
-import { getUsers, deleteUser } from "./api";
+import { getUsers, deleteUser, getUsername, editPassword } from "./api";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2"; // Import SweetAlert
 import ImportExcel from "./ImportExcel";
@@ -25,7 +25,28 @@ function Users() {
     };
 
     fetchUsers();
-  }, [navigate]);
+  }, []);
+
+  const fetchUserAuth = async (id) => {
+    try {
+      const data = await getUsername(id);
+      const selectedUser = data.user[0];
+
+      Swal.fire({
+        title: "Informasi Akun Guru",
+        html: `
+          <strong>Username:</strong> ${selectedUser.username} <br>
+        `,
+        icon: "info",
+        confirmButtonText: "OK",
+        customClass: {
+          icon: "text-blue-500",
+        },
+      });
+    } catch (err) {
+      setError(err.message || "Gagal mengambil data autentikasi.");
+    }
+  };
 
   // Handle delete confirmation with SweetAlert
   const handleDelete = async (id) => {
@@ -72,6 +93,45 @@ function Users() {
           });
 
           console.error("Error detail:", error);
+        }
+      }
+    });
+  };
+
+  const handlePasswordEdit = (id) => {
+    // Show input prompt for password
+    Swal.fire({
+      title: "Ganti Password",
+      html: `
+        <input type="password" id="newPassword" class="swal2-input" placeholder="Enter new password" />
+      `,
+      confirmButtonText: "Update Password",
+      preConfirm: () => {
+        const newPassword = document.getElementById("newPassword").value;
+        if (!newPassword) {
+          Swal.showValidationMessage("Password cannot be empty");
+          return false;
+        }
+        return newPassword;
+      },
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          // Call the API to update the password
+          const updatedPassword = result.value; // The new password entered by the user
+          await editPassword(id, { password: updatedPassword });
+          Swal.fire({
+            title: "Password Berhasil Diganti!",
+            icon: "success",
+            confirmButtonText: "OK",
+          });
+        } catch (error) {
+          Swal.fire({
+            title: "Error!",
+            text: error.message || "Gagal mengganti password",
+            icon: "error",
+            confirmButtonText: "OK",
+          });
         }
       }
     });
@@ -177,9 +237,22 @@ function Users() {
                           </button>
                           <button
                             onClick={() => handleDelete(user.id)} // langsung panggil handleDelete
-                            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 mr-2"
                           >
                             Delete
+                          </button>
+                          <button
+                            onClick={() => fetchUserAuth(user.id)} // Menampilkan modal untuk user yang dipilih
+                            className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+                          >
+                            Lihat Data
+                          </button>
+
+                          <button
+                            onClick={() => handlePasswordEdit(user.id)}
+                            className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 ml-2"
+                          >
+                            Edit Password
                           </button>
                         </td>
                       </tr>

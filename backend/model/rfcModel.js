@@ -3,9 +3,9 @@ const connectDB = require("../config/db");
 const checkUserByRFID = async (rfid) => {
   const connection = await connectDB();
   const [rows] = await connection.execute(
-    `SELECT users.*, scans.timestamp
+   `SELECT users.*, scans.timestamp
      FROM users
-     JOIN scans ON users.id = scans.userID
+     LEFT JOIN scans ON users.id = scans.userID
      WHERE users.rfid = ?`,
     [rfid]
   );

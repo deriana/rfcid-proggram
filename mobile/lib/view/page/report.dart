@@ -72,22 +72,32 @@ class Report extends StatelessWidget {
             const Gap(20),
 
             // Filter Dropdown Section
-            DropdownButtonFormField<String>(
-              decoration: InputDecoration(
-                labelText: "Filter",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.grey.shade300, width: 1),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                child: DropdownButtonFormField<String>(
+                  decoration: const InputDecoration.collapsed(hintText: null),
+                  hint: const Text("Pilih Filter"),
+                  icon: const Icon(Icons.arrow_drop_down, color: Colors.orange),
+                  items: const [
+                    DropdownMenuItem(value: "Masuk", child: Text("Masuk")),
+                    DropdownMenuItem(value: "Terlambat", child: Text("Terlambat")),
+                    DropdownMenuItem(value: "Alfa", child: Text("Alfa")),
+                    DropdownMenuItem(value: "Sakit", child: Text("Sakit")),
+                    DropdownMenuItem(value: "Izin", child: Text("Izin")),
+                    DropdownMenuItem(value: "Keluar", child: Text("Keluar")),
+                    DropdownMenuItem(value: "Rekap", child: Text("Rekap")),
+                  ],
+                  onChanged: (value) {},
+                  style: const TextStyle(color: Colors.black, fontSize: 16),
+                  dropdownColor: Colors.white,
                 ),
               ),
-              items: const [
-                DropdownMenuItem(value: "Masuk", child: Text("Masuk")),
-                DropdownMenuItem(value: "Terlambat", child: Text("Terlambat")),
-                DropdownMenuItem(value: "Alfa", child: Text("Alfa")),
-                DropdownMenuItem(value: "Sakit", child: Text("Sakit")),
-                DropdownMenuItem(value: "Izin", child: Text("Izin")),
-                DropdownMenuItem(value: "Keluar", child: Text("Keluar")),
-              ],
-              onChanged: (value) {},
             ),
             const Gap(20),
 

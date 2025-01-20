@@ -10,6 +10,8 @@ router.put("/user/:id", userController.deleteUser);
 router.put("/user/:id", userController.editUser);
 router.get("/user/:id", userController.getUserByID);
 router.get("/checkabsent", userController.checkUserNotAbsent);
-router.post("/upload-xlsx", upload.single("file"), userController.uploadXlsx); // 'file' adalah nama field di form-data
+router.post("/upload-xlsx", upload.single("file"), userController.uploadXlsx);
+router.get("/user/auth/:id", userController.getUsername);
+router.put("/user/password/:id", userController.editPassword)
 
 module.exports = router;

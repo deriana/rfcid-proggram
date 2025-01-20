@@ -31,7 +31,7 @@ class Splashscreen extends StatelessWidget {
       Navigator.pushReplacement(
         // ignore: use_build_context_synchronously
         context,
-        MaterialPageRoute(builder: (context) => const Login()),
+        MaterialPageRoute(builder: (context) => const LoginPage()),
       );
     });
 
@@ -53,7 +53,7 @@ class Splashscreen extends StatelessWidget {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             Gap(50),
-            const LoadingWidget(),
+            LoadingWidget()
           ],
         ),
       ),
