@@ -18,7 +18,7 @@ class HistoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(10.0),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(10),
@@ -35,15 +35,15 @@ class HistoryCard extends StatelessWidget {
         children: [
           Icon(
             icon,
-            size: 40,
+            size: 25,
             color: Colors.white,
           ),
-          SizedBox(height: 10), // use SizedBox instead of Gap
+          SizedBox(height: 10), 
           Text(
             title,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -51,7 +51,7 @@ class HistoryCard extends StatelessWidget {
             value,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 30,
+              fontSize: 15,
               fontWeight: FontWeight.w600,
             ),
           ),

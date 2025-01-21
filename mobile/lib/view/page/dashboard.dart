@@ -33,9 +33,8 @@ class HomePage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
+      body: ListView(
+        padding: EdgeInsets.zero,
         children: [
           Stack(
             children: [
@@ -77,11 +76,14 @@ class HomePage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Selamat Pagi!",
+                            currentTimeOfDay == 'Pagi'
+                                ? "Selamat Pagi!"
+                                : "Selamat Malam!",
                             style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black),
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
                           ),
                           Text(
                             name,
@@ -200,6 +202,13 @@ class HomePage extends StatelessWidget {
           Gap(20),
           Absent(),
           Gap(20),
+          Text("30 Hari Terakhir",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20)),
+          Gap(20),
           HistoryItem(),
         ],
       ),
@@ -240,5 +249,4 @@ class HomePage extends StatelessWidget {
       ],
     );
   }
-
 }

@@ -103,9 +103,8 @@ class _HistoryItemState extends State<HistoryItem> {
 
   @override
   Widget build(BuildContext context) {
-    // Tunggu hingga userId dimuat untuk memastikan data bisa dikirim
     if (userId == null) {
-      return Center(child: CircularProgressIndicator()); // Tampilkan loading indicator jika userId belum tersedia
+      return Center(child: CircularProgressIndicator());
     }
 
     return Expanded(
@@ -113,8 +112,9 @@ class _HistoryItemState extends State<HistoryItem> {
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: GridView.builder(
           shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
+            crossAxisCount: 3,
             crossAxisSpacing: 15,
             mainAxisSpacing: 15,
           ),
