@@ -129,6 +129,14 @@ const changePassword = async (password, id) => {
   return result
 };
 
+const getUserByUsername = async (username) => {
+  const connection = await connectDB();
+  const query = 'SELECT * FROM users WHERE username = ?';
+  const [result] = await connection.execute(query, [username]);
+  await connection.end()
+  return result
+};
+
 module.exports = {
   insertUser,
   getAllUsers,
@@ -138,5 +146,6 @@ module.exports = {
   insertUserXlsx,
   checkUserNotAbsent,
   checkUsername,
-  changePassword
+  changePassword,
+  getUserByUsername
 };

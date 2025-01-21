@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/view/page/login.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mobile/api.dart'; // Ensure this import matches your API service class
 
 class ChangePasswordModal extends StatelessWidget {
   const ChangePasswordModal({super.key});
@@ -6,8 +9,6 @@ class ChangePasswordModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextEditingController passwordController = TextEditingController();
-    final TextEditingController confirmPasswordController =
-        TextEditingController();
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -54,30 +55,13 @@ class ChangePasswordModal extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 15),
-            TextField(
-              controller: confirmPasswordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: "Confirm Password",
-                hintText: "Re-enter new password",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-                prefixIcon: Icon(Icons.lock_outline, color: Colors.grey),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey, width: 2.0),
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-              ),
-            ),
             const SizedBox(height: 25),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); 
+                    Navigator.of(context).pop(); // Close the modal without any action
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey[300],
@@ -90,8 +74,56 @@ class ChangePasswordModal extends StatelessWidget {
                   child: Text("Cancel"),
                 ),
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(); 
+                  onPressed: () async {
+                    String newPassword = passwordController.text.trim();
+
+                    if (newPassword.isEmpty) {
+                      // Alert for empty password field
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Please enter a new password")),
+                      );
+                    } else {
+                      // Fetch id from SharedPreferences (where it's stored as 'userId')
+                      SharedPreferences prefs = await SharedPreferences.getInstance();
+                      int? id = prefs.getInt('userId');  // Now using the correct key 'userId'
+
+                      if (id == null) {
+                        // Handle missing userId in SharedPreferences
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("User not logged in")),
+                        );
+                      } else {
+                        try {
+                          // Call the API to update the password
+                          ApiService apiService = ApiService();
+                          var result = await apiService.updatePassword(id, newPassword);
+
+                          // Checking if the API result has an error and printing it to console
+                          if (result['error'] != null) {
+                            print("Error: ${result['error']}"); // Print the error to console
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(result['error'])),
+                            );
+                          } else {
+                            // On success, navigate to the login page
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => LoginPage()),
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Password updated successfully")),
+                            );
+                          }
+                        } catch (e) {
+                          // Print the error that occurs during the update attempt
+                          print("Exception during password update: $e");
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Error during password update: $e")),
+                          );
+                        }
+                      }
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,

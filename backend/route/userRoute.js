@@ -12,6 +12,7 @@ router.get("/user/:id", userController.getUserByID);
 router.get("/checkabsent", userController.checkUserNotAbsent);
 router.post("/upload-xlsx", upload.single("file"), userController.uploadXlsx);
 router.get("/user/auth/:id", userController.getUsername);
-router.put("/user/password/:id", userController.editPassword)
+router.put("/user/password/:id", userController.editPassword);
+router.post("/user/login", userController.loginUser);
 
 module.exports = router;

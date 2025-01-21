@@ -11,7 +11,11 @@ dependencies:
   flutter:
     sdk: flutter
   gap: ^3.0.1
+  http: ^1.2.2
+  intl: ^0.18.0
   lottie: ^3.3.1
+  path_provider: ^2.1.5
+  shared_preferences: ^2.0.15
 
 dev_dependencies:
   flutter_lints: ^5.0.0
@@ -20,8 +24,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-assets:
-  - assets/dashboard_bg.png
-  - assets/pf.jpg
-  - assets/icon.png
-  - assets/smakzie.png
+  assets:
+    - assets/
+    # - assets/Himmel_guru.jpeg

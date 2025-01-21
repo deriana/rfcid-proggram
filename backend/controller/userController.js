@@ -73,6 +73,38 @@ const registerUser = (req, res) => {
   });
 };
 
+const loginUser = async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ message: "Username and password are required" });
+  }
+
+  try {
+    const rows = await userModel.getUserByUsername(username);
+
+    if (rows.length === 0) {
+      return res.status(401).json({ message: "Username or password is incorrect" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, rows[0].password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Username or password is incorrect" });
+    }
+
+    const { password: _, ...user } = rows[0]; 
+    return res.status(200).json({
+      message: "Login successful",
+      user: user, 
+    });
+
+  } catch (error) {
+    console.error("Error logging in:", error); 
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 const getUsers = async (req, res) => {
   try {
     const results = await userModel.getAllUsers();
@@ -300,5 +332,6 @@ module.exports = {
   uploadXlsx,
   checkUserNotAbsent,
   getUsername,
-  editPassword
+  editPassword,
+  loginUser
 };

@@ -66,7 +66,9 @@ class Splashscreen extends StatelessWidget {
             SizedBox(
               width: 35,
               height: 35,
-              child: Image(image: AssetImage("../../assets/smakzie.png")),
+              child: Image(
+                  image: AssetImage(
+                      "assets/smakzie.png")), 
             ),
             SizedBox(
               width: 10,

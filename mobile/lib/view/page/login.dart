@@ -3,6 +3,8 @@ import 'package:gap/gap.dart';
 import 'package:d_info/d_info.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mobile/view/page/dashboard.dart';
+import 'package:mobile/api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,23 +14,72 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  bool _isPasswordVisible = false; // State untuk kontrol visibilitas password
-  String _errorMessage = ''; // Menambahkan pesan error ke UI
+  bool _isPasswordVisible = false;
+  String _errorMessage = '';
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus(); // Cek status login ketika halaman login dimuat
+  }
+
+  // Fungsi untuk mengecek apakah user sudah login
+  Future<void> _checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? userId = prefs.getInt('userId'); // Cek apakah user sudah login
+
+    if (userId != null) {
+      // Jika userId ada, artinya pengguna sudah login
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => const HomePage()), // Arahkan ke HomePage
+      );
+    }
+  }
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  void _handleLogin() {
-    final String email = _emailController.text;
-    final String password = _passwordController.text;
+  Future<void> _handleLogin() async {
+    setState(() {
+      _errorMessage = '';
+      _isLoading = true;
+    });
 
-    if (email == "test@gmail.com" && password == "test") {
+    final String username = _usernameController.text.trim();
+    final String password = _passwordController.text.trim();
+
+    if (username.isEmpty || password.isEmpty) {
+      setState(() {
+        _errorMessage = 'Username dan password harus diisi';
+        _isLoading = false;
+      });
+      return;
+    }
+
+    ApiService apiService = ApiService();
+    final response = await apiService.loginUser(username, password);
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (response.containsKey('error')) {
+      setState(() {
+        _errorMessage = response['error'];
+      });
+    } else {
+      // Simpan session ke SharedPreferences setelah login berhasil
+      _saveUserSession(response['user']);
+
       DInfo.snackBarSuccess(context, "Login Berhasil!");
       Future.delayed(const Duration(seconds: 1), () {
         Navigator.pushReplacement(
@@ -36,11 +87,20 @@ class _LoginPageState extends State<LoginPage> {
           MaterialPageRoute(builder: (context) => const HomePage()),
         );
       });
-    } else {
-      setState(() {
-        _errorMessage = 'Email atau password salah.';
-      });
     }
+  }
+
+  Future<void> _saveUserSession(Map<String, dynamic> user) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    prefs.setInt('userId', user['id']);
+    prefs.setString('username', user['username']);
+    prefs.setString('name', user['name']);
+    prefs.setString('nip', user['nip']);
+    prefs.setString('image', user['image']);
+    prefs.setString('status', user['status']);
+    prefs.setString('kelamin', user['kelamin']);
+    prefs.setString('mapel', user['mapel']);
   }
 
   @override
@@ -55,8 +115,11 @@ class _LoginPageState extends State<LoginPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Center(
-                  child: Lottie.asset('../../assets/lottie/hi.json',
-                      width: 300, height: 300),
+                  child: Lottie.asset(
+                    '../../assets/lottie/hi.json', 
+                    width: 300,
+                    height: 300,
+                  ),
                 ),
                 const Gap(16),
                 const Text(
@@ -77,10 +140,10 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const Gap(30),
                 MyTextField(
-                  hintText: "Email",
-                  icon: Icons.email_outlined,
+                  hintText: "Username",
+                  icon: Icons.person_outline,
                   hide: false,
-                  controller: _emailController,
+                  controller: _usernameController,
                 ),
                 const Gap(16),
                 PasswordTextField(
@@ -107,15 +170,19 @@ class _LoginPageState extends State<LoginPage> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _handleLogin,
+                    onPressed: _isLoading
+                        ? null
+                        : _handleLogin, // Nonaktifkan jika sedang loading
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFF26A37),
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
                     ),
-                    child: const Text(
-                      'Login',
-                      style: TextStyle(color: Colors.white),
-                    ),
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                            'Login',
+                            style: TextStyle(color: Colors.white),
+                          ),
                   ),
                 ),
               ],

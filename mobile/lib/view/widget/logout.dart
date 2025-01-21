@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/view/page/login.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LogoutButton extends StatelessWidget {
   const LogoutButton({super.key});
@@ -21,6 +23,7 @@ class LogoutButton extends StatelessWidget {
               padding: EdgeInsets.zero,
             ),
             onPressed: () {
+              // Tampilkan dialog konfirmasi logout
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
@@ -54,7 +57,6 @@ class LogoutButton extends StatelessWidget {
   }
 }
 
-// Modal untuk Konfirmasi Logout
 class _LogoutConfirmationDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -98,14 +100,20 @@ class _LogoutConfirmationDialog extends StatelessWidget {
                   ),
                 ),
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close dialog
-                    // Tambahkan logika logout di sini
+                  onPressed: () async {
+                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                    await prefs.clear(); // Hapus session login
+
+                    // Arahkan ke halaman login langsung
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (context) => const LoginPage()),
+                      (Route<dynamic> route) => false,
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                   ),
-                  child: Text("Logout", style: TextStyle(color: Colors.white),),
+                  child: Text("Logout", style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),

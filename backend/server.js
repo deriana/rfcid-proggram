@@ -7,6 +7,7 @@ const reportRoute = require("./route/reportRoutes");
 const userRoute = require("./route/userRoute");
 const adminRoute = require("./route/adminRoute")
 const dashboardRoute = require("./route/dashboardRoute")
+const mobileRoute = require("./route/mobileRoute")
 
 dotenv.config();
 const app = express();
@@ -20,6 +21,7 @@ app.use("/api", reportRoute);
 app.use("/api", userRoute);
 app.use("/api", adminRoute)
 app.use("/api", dashboardRoute)
+app.use("/api", mobileRoute)
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
