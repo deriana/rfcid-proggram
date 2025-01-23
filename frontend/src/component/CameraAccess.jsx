@@ -46,13 +46,12 @@ const CameraAccess = forwardRef((props, ref) => {
 
   return (
     <div className="camera-container text-center">
-      <h2 className="text-xl font-bold text-gray-700 mb-4">Camera Access</h2>
       {capturedImage ? (
         <img
           src={capturedImage}
           alt="Captured"
           className="rounded shadow-lg border border-gray-300 mx-auto"
-          style={{ width: "60%", maxWidth: "480px" }}
+          style={{ width: "100%", maxWidth: "600px" }}
         />
       ) : (
         <video
@@ -60,7 +59,7 @@ const CameraAccess = forwardRef((props, ref) => {
           autoPlay
           playsInline
           className="rounded shadow-lg border border-gray-300 mx-auto"
-          style={{ width: "60%", maxWidth: "480px" }}
+          style={{ width: "100%", maxWidth: "600px" }}
         />
       )}
       <canvas ref={canvasRef} style={{ display: "none" }} />
