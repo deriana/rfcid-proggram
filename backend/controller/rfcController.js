@@ -1,3 +1,4 @@
+const upload = require("../middleware/multer");
 const rfcModel = require("../model/rfcModel"); // Mengimpor model untuk akses database
 
 // Fungsi untuk registrasi user
@@ -60,8 +61,36 @@ const loginUser = async (req, res) => {
       // **Validasi scan di atas jam 12 - Keluar**
       if (currentTime > "12:00:00") {
         const lastScanRows = await rfcModel.getLastScan(userID);
-        if (lastScanRows.length > 0 && lastScanRows[0].type === "masuk") {
-          scanType = "keluar"; // Scan keluar jika sudah ada scan masuk
+
+        // Cek jika ada data scan terakhir
+        if (lastScanRows.length > 0) {
+          const lastScanType = lastScanRows[0].type;
+
+          // Jika scan terakhir sudah masuk, maka anggap "keluar"
+          if (lastScanType === "masuk") {
+            scanType = "keluar";
+          } else if (lastScanType === "keluar") {
+            // Jika scan terakhir sudah keluar, beri pesan tidak perlu scan lagi
+            return res.status(200).json({
+              message: `Kamu sudah melakukan scan keluar, ${name}. Tidak perlu scan ulang.`,
+              name,
+              nip,
+              image,
+              timestamp: new Date(),
+            });
+          } else if (
+            lastScanType === "terlambat" &&
+            currentTime <= "12:00:00"
+          ) {
+            // Jika sudah "terlambat" dan masih dalam rentang pagi
+            return res.status(200).json({
+              message: `Kamu sudah absen terlambat hari ini, ${name}. Tidak perlu scan ulang.`,
+              name,
+              nip,
+              image,
+              timestamp: new Date(),
+            });
+          }
         } else {
           // Jika belum ada scan masuk, default ke "masuk"
           scanType = "masuk";
@@ -95,7 +124,7 @@ const loginUser = async (req, res) => {
     }
   } catch (err) {
     console.error("Error during user login:", err);
-    res.status(500).json({ message: "Terjadi kesalahan dalam proses login." });
+    res.status(500).json({ message: "Terjadi kesalahan dalam proses Absen." });
   }
 };
 
@@ -220,7 +249,7 @@ const UsersGetAlfa = async (req, res) => {
   }
 };
 
-// Mengekspor fungsi controller
+
 module.exports = {
   registerUser,
   loginUser,

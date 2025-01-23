@@ -29,12 +29,12 @@ const App = () => {
         {/* Rute terbuka */}
         <Route path="/login" element={<Login />} />
         <Route path="/logout" element={<Logout />} />
-        <Route path="/rfcid-scans" element={<LoginRfcid />} />
+        <Route path="/" element={<LoginRfcid />} />
         <Route path="*" element={<NotFound />} />
 
         {/* Rute yang dilindungi */}
         <Route
-          path="/"
+          path="/dashboard"
           element={
             <ProtectedRoute>
               <Dashboard />

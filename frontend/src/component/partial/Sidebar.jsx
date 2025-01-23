@@ -61,7 +61,7 @@ const Sidebar = ({ isVisible }) => {
             <ul className="mb-6 flex flex-col gap-1.5">
               {/* Semua role dapat melihat Dashboard */}
               <NavItem
-                href="/"
+                href="/dashboard"
                 icon={faTachometerAlt}
                 label="Dashboard"
                 selected={selected === "Dashboard"}
@@ -70,7 +70,7 @@ const Sidebar = ({ isVisible }) => {
 
               {/* Semua role dapat melihat Scan Kartu */}
               <NavItem
-                href="/rfcid-scans"
+                href="/"
                 icon={faIdCard}
                 label="Scan Kartu"
                 selected={selected === "Scan Kartu"}

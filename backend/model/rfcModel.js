@@ -121,6 +121,22 @@ const checkScanForToday = async (userID) => {
   return rows;
 };
 
+const checkAbsentForToday = async (userID) => {
+  const connection = await connectDB();
+  const [rows] = await connection.execute(
+    `SELECT * 
+     FROM scans 
+     WHERE userID = ? 
+       AND DATE(timestamp) = CURDATE() 
+       AND type IN ('masuk', 'terlambat')`,
+    [userID]
+  );
+  await connection.end();
+
+  // Jika tidak ada data, berarti user belum absen
+  return rows.length === 0;
+};
+
 // Ekspor semua fungsi
 module.exports = {
   checkUserByRFID,
@@ -134,5 +150,6 @@ module.exports = {
   UsersGetAlfa,
   checkEntryForToday,
   checkScanForToday,
-  getTodayScan
+  getTodayScan,
+  checkAbsentForToday
 };

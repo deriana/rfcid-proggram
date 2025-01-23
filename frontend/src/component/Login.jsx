@@ -16,7 +16,7 @@ const Login = () => {
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (token) {
-      navigate("/"); // Arahkan ke halaman admin
+      navigate("/dashboard"); // Arahkan ke halaman admin
     }
   }, [navigate]);
 
@@ -45,7 +45,7 @@ const Login = () => {
       localStorage.setItem("authToken", response.token);
       localStorage.setItem("adminData", JSON.stringify(response.admin));
 
-      setTimeout(() => navigate("/"), 1000);
+      setTimeout(() => navigate("/dashboard"), 1000);
     } catch (error) {
       const errorMsg =
         error.response?.data?.message || "Terjadi kesalahan saat login.";

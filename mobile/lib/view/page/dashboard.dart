@@ -96,8 +96,8 @@ class HomePage extends StatelessWidget {
                       ),
                       Spacer(),
                       ClipOval(
-                        child: Image.asset(
-                          "../../assets/$image", // Gambar profil jika ada
+                        child: Image.network(
+                          "http://localhost:5173/images/$image", // Gambar profil jika ada
                           height: 50,
                           width: 50,
                           fit: BoxFit.cover,
@@ -202,12 +202,15 @@ class HomePage extends StatelessWidget {
           Gap(20),
           Absent(),
           Gap(20),
-          Text("30 Hari Terakhir",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20)),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Text("30 Hari Terakhir",
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15)),
+          ),
           Gap(20),
           HistoryItem(),
         ],
